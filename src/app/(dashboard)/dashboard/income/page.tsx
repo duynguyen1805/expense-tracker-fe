@@ -1,16 +1,35 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { TrendingUp, Plus, Edit, Trash2 } from 'lucide-react';
-import { Income, Category } from '@/lib/types';
-import { useToast } from '@/hooks/use-toast';
-import { api } from '@/lib/api/client';
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { TrendingUp, Plus, Edit, Trash2 } from "lucide-react";
+import { Income, Category } from "@/lib/types";
+import { useToast } from "@/hooks/use-toast";
+import { api } from "@/lib/api/client";
 
 export default function IncomePage() {
   const [incomes, setIncomes] = useState<Income[]>([]);
@@ -21,21 +40,25 @@ export default function IncomePage() {
   const { toast } = useToast();
 
   // Form state
-  const [amount, setAmount] = useState('');
-  const [description, setDescription] = useState('');
-  const [categoryId, setCategoryId] = useState('');
-  const [date, setDate] = useState('');
+  const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [date, setDate] = useState("");
 
   // Load data from API
   useEffect(() => {
     const loadData = async () => {
       try {
         setIsLoading(true);
-        
+
         // Load categories
         const categoriesResponse = await api.categories.getAll();
         if (categoriesResponse.data.success && categoriesResponse.data.data) {
-          setCategories(categoriesResponse.data.data.filter((cat: Category) => cat.type === 'income'));
+          setCategories(
+            categoriesResponse.data.data.filter(
+              (cat: Category) => cat.type === "income"
+            )
+          );
         }
 
         // Load incomes
@@ -44,11 +67,11 @@ export default function IncomePage() {
           setIncomes(incomesResponse.data.data);
         }
       } catch (error) {
-        console.error('Error loading data:', error);
+        console.error("Error loading data:", error);
         toast({
-          title: 'Error',
-          description: 'Failed to load data',
-          variant: 'destructive',
+          title: "Error",
+          description: "Failed to load data",
+          variant: "destructive",
         });
       } finally {
         setIsLoading(false);
@@ -60,12 +83,12 @@ export default function IncomePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!amount || !description || !categoryId || !date) {
       toast({
-        title: 'Error',
-        description: 'Please fill in all fields',
-        variant: 'destructive',
+        title: "Error",
+        description: "Please fill in all fields",
+        variant: "destructive",
       });
       return;
     }
@@ -82,12 +105,14 @@ export default function IncomePage() {
         // Update existing income
         const response = await api.income.update(editingIncome.id, incomeData);
         if (response.data.success) {
-          setIncomes(incomes.map(income => 
-            income.id === editingIncome.id ? response.data.data : income
-          ));
+          setIncomes(
+            incomes.map((income) =>
+              income.id === editingIncome.id ? response.data.data : income
+            )
+          );
           toast({
-            title: 'Success',
-            description: 'Income updated successfully!',
+            title: "Success",
+            description: "Income updated successfully!",
           });
         }
       } else {
@@ -96,19 +121,19 @@ export default function IncomePage() {
         if (response.data.success) {
           setIncomes([...incomes, response.data.data]);
           toast({
-            title: 'Success',
-            description: 'Income added successfully!',
+            title: "Success",
+            description: "Income added successfully!",
           });
         }
       }
 
       handleCloseDialog();
     } catch (error) {
-      console.error('Error saving income:', error);
+      console.error("Error saving income:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to save income',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to save income",
+        variant: "destructive",
       });
     }
   };
@@ -118,7 +143,7 @@ export default function IncomePage() {
     setAmount(income.amount.toString());
     setDescription(income.description);
     setCategoryId(income.categoryId);
-    setDate(income.date.toISOString().split('T')[0]);
+    setDate(income.date.toISOString().split("T")[0]);
     setIsDialogOpen(true);
   };
 
@@ -126,18 +151,18 @@ export default function IncomePage() {
     try {
       const response = await api.income.delete(id);
       if (response.data.success) {
-        setIncomes(incomes.filter(income => income.id !== id));
+        setIncomes(incomes.filter((income) => income.id !== id));
         toast({
-          title: 'Success',
-          description: 'Income deleted successfully!',
+          title: "Success",
+          description: "Income deleted successfully!",
         });
       }
     } catch (error) {
-      console.error('Error deleting income:', error);
+      console.error("Error deleting income:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to delete income',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to delete income",
+        variant: "destructive",
       });
     }
   };
@@ -145,10 +170,10 @@ export default function IncomePage() {
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setEditingIncome(null);
-    setAmount('');
-    setDescription('');
-    setCategoryId('');
-    setDate('');
+    setAmount("");
+    setDescription("");
+    setCategoryId("");
+    setDate("");
   };
 
   const totalIncome = incomes.reduce((sum, income) => sum + income.amount, 0);
@@ -166,7 +191,9 @@ export default function IncomePage() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Income</h1>
-          <p className="text-gray-600 dark:text-gray-400">Manage your income sources</p>
+          <p className="text-gray-600 dark:text-gray-400">
+            Manage your income sources
+          </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -177,9 +204,13 @@ export default function IncomePage() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingIncome ? 'Edit Income' : 'Add Income'}</DialogTitle>
+              <DialogTitle>
+                {editingIncome ? "Edit Income" : "Add Income"}
+              </DialogTitle>
               <DialogDescription>
-                {editingIncome ? 'Update your income details' : 'Add a new income entry'}
+                {editingIncome
+                  ? "Update your income details"
+                  : "Add a new income entry"}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -226,7 +257,7 @@ export default function IncomePage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 w-fit">
                 <Label htmlFor="date">Date</Label>
                 <Input
                   id="date"
@@ -237,11 +268,15 @@ export default function IncomePage() {
                 />
               </div>
               <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={handleCloseDialog}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCloseDialog}
+                >
                   Cancel
                 </Button>
                 <Button type="submit">
-                  {editingIncome ? 'Update' : 'Add'} Income
+                  {editingIncome ? "Update" : "Add"} Income
                 </Button>
               </div>
             </form>
@@ -257,7 +292,9 @@ export default function IncomePage() {
             <TrendingUp className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalIncome.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              ${totalIncome.toLocaleString()}
+            </div>
             <p className="text-xs text-muted-foreground">
               {incomes.length} income entries
             </p>
@@ -279,9 +316,12 @@ export default function IncomePage() {
           ) : (
             <div className="space-y-4">
               {incomes.map((income) => (
-                <div key={income.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div
+                  key={income.id}
+                  className="flex items-center justify-between p-4 border rounded-lg"
+                >
                   <div className="flex items-center space-x-4">
-                    <div 
+                    <div
                       className="w-10 h-10 rounded-full flex items-center justify-center text-white"
                       style={{ backgroundColor: income.category.color }}
                     >
@@ -290,12 +330,15 @@ export default function IncomePage() {
                     <div>
                       <p className="font-medium">{income.description}</p>
                       <p className="text-sm text-muted-foreground">
-                        {income.category.name} • {new Date(income.date).toLocaleDateString()}
+                        {income.category.name} •{" "}
+                        {new Date(income.date).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <p className="font-bold text-green-600">+${income.amount}</p>
+                    <p className="font-bold text-green-600">
+                      +${income.amount}
+                    </p>
                     <Button
                       variant="ghost"
                       size="sm"

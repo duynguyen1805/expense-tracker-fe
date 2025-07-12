@@ -1,15 +1,34 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { TrendingDown, Plus, Edit, Trash2 } from 'lucide-react';
-import { Expense, Category } from '@/lib/types';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { TrendingDown, Plus, Edit, Trash2 } from "lucide-react";
+import { Expense, Category } from "@/lib/types";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -20,53 +39,107 @@ export default function ExpensesPage() {
   const { toast } = useToast();
 
   // Form state
-  const [amount, setAmount] = useState('');
-  const [description, setDescription] = useState('');
-  const [categoryId, setCategoryId] = useState('');
-  const [date, setDate] = useState('');
+  const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [date, setDate] = useState("");
 
   useEffect(() => {
     // Mock data - replace with API calls
     const mockCategories: Category[] = [
-      { id: '1', name: 'Food', type: 'expense', color: '#ef4444', icon: '🍕', userId: '1', createdAt: new Date(), updatedAt: new Date() },
-      { id: '2', name: 'Transport', type: 'expense', color: '#3b82f6', icon: '🚗', userId: '1', createdAt: new Date(), updatedAt: new Date() },
-      { id: '3', name: 'Entertainment', type: 'expense', color: '#8b5cf6', icon: '🎬', userId: '1', createdAt: new Date(), updatedAt: new Date() },
-      { id: '4', name: 'Shopping', type: 'expense', color: '#f59e0b', icon: '🛍️', userId: '1', createdAt: new Date(), updatedAt: new Date() },
-      { id: '5', name: 'Bills', type: 'expense', color: '#06b6d4', icon: '📄', userId: '1', createdAt: new Date(), updatedAt: new Date() },
-      { id: '6', name: 'Other', type: 'expense', color: '#6b7280', icon: '📦', userId: '1', createdAt: new Date(), updatedAt: new Date() },
+      {
+        id: "1",
+        name: "Food",
+        type: "expense",
+        color: "#ef4444",
+        icon: "🍕",
+        userId: "1",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: "2",
+        name: "Transport",
+        type: "expense",
+        color: "#3b82f6",
+        icon: "🚗",
+        userId: "1",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: "3",
+        name: "Entertainment",
+        type: "expense",
+        color: "#8b5cf6",
+        icon: "🎬",
+        userId: "1",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: "4",
+        name: "Shopping",
+        type: "expense",
+        color: "#f59e0b",
+        icon: "🛍️",
+        userId: "1",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: "5",
+        name: "Bills",
+        type: "expense",
+        color: "#06b6d4",
+        icon: "📄",
+        userId: "1",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: "6",
+        name: "Other",
+        type: "expense",
+        color: "#6b7280",
+        icon: "📦",
+        userId: "1",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
     ];
 
     const mockExpenses: Expense[] = [
       {
-        id: '1',
+        id: "1",
         amount: 50,
-        description: 'Lunch at restaurant',
-        categoryId: '1',
+        description: "Lunch at restaurant",
+        categoryId: "1",
         category: mockCategories[0],
-        date: new Date('2024-01-15'),
-        userId: '1',
+        date: new Date("2024-01-15"),
+        userId: "1",
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        id: '2',
+        id: "2",
         amount: 30,
-        description: 'Gas for car',
-        categoryId: '2',
+        description: "Gas for car",
+        categoryId: "2",
         category: mockCategories[1],
-        date: new Date('2024-01-14'),
-        userId: '1',
+        date: new Date("2024-01-14"),
+        userId: "1",
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        id: '3',
+        id: "3",
         amount: 25,
-        description: 'Movie tickets',
-        categoryId: '3',
+        description: "Movie tickets",
+        categoryId: "3",
         category: mockCategories[2],
-        date: new Date('2024-01-13'),
-        userId: '1',
+        date: new Date("2024-01-13"),
+        userId: "1",
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -81,17 +154,17 @@ export default function ExpensesPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!amount || !description || !categoryId || !date) {
       toast({
-        title: 'Error',
-        description: 'Please fill in all fields',
-        variant: 'destructive',
+        title: "Error",
+        description: "Please fill in all fields",
+        variant: "destructive",
       });
       return;
     }
 
-    const selectedCategory = categories.find(cat => cat.id === categoryId);
+    const selectedCategory = categories.find((cat) => cat.id === categoryId);
     if (!selectedCategory) return;
 
     const newExpense: Expense = {
@@ -101,22 +174,26 @@ export default function ExpensesPage() {
       categoryId,
       category: selectedCategory,
       date: new Date(date),
-      userId: '1',
+      userId: "1",
       createdAt: editingExpense?.createdAt || new Date(),
       updatedAt: new Date(),
     };
 
     if (editingExpense) {
-      setExpenses(expenses.map(expense => expense.id === editingExpense.id ? newExpense : expense));
+      setExpenses(
+        expenses.map((expense) =>
+          expense.id === editingExpense.id ? newExpense : expense
+        )
+      );
       toast({
-        title: 'Success',
-        description: 'Expense updated successfully!',
+        title: "Success",
+        description: "Expense updated successfully!",
       });
     } else {
       setExpenses([...expenses, newExpense]);
       toast({
-        title: 'Success',
-        description: 'Expense added successfully!',
+        title: "Success",
+        description: "Expense added successfully!",
       });
     }
 
@@ -128,33 +205,43 @@ export default function ExpensesPage() {
     setAmount(expense.amount.toString());
     setDescription(expense.description);
     setCategoryId(expense.categoryId);
-    setDate(expense.date.toISOString().split('T')[0]);
+    setDate(expense.date.toISOString().split("T")[0]);
     setIsDialogOpen(true);
   };
 
   const handleDelete = (id: string) => {
-    setExpenses(expenses.filter(expense => expense.id !== id));
+    setExpenses(expenses.filter((expense) => expense.id !== id));
     toast({
-      title: 'Success',
-      description: 'Expense deleted successfully!',
+      title: "Success",
+      description: "Expense deleted successfully!",
     });
   };
 
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setEditingExpense(null);
-    setAmount('');
-    setDescription('');
-    setCategoryId('');
-    setDate('');
+    setAmount("");
+    setDescription("");
+    setCategoryId("");
+    setDate("");
   };
 
-  const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-  const expensesByCategory = categories.map(category => {
-    const categoryExpenses = expenses.filter(expense => expense.categoryId === category.id);
-    const total = categoryExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-    return { category, total, count: categoryExpenses.length };
-  }).filter(item => item.count > 0);
+  const totalExpenses = expenses.reduce(
+    (sum, expense) => sum + expense.amount,
+    0
+  );
+  const expensesByCategory = categories
+    .map((category) => {
+      const categoryExpenses = expenses.filter(
+        (expense) => expense.categoryId === category.id
+      );
+      const total = categoryExpenses.reduce(
+        (sum, expense) => sum + expense.amount,
+        0
+      );
+      return { category, total, count: categoryExpenses.length };
+    })
+    .filter((item) => item.count > 0);
 
   if (isLoading) {
     return (
@@ -169,7 +256,9 @@ export default function ExpensesPage() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Expenses</h1>
-          <p className="text-gray-600 dark:text-gray-400">Track your spending</p>
+          <p className="text-gray-600 dark:text-gray-400">
+            Track your spending
+          </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -180,9 +269,13 @@ export default function ExpensesPage() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingExpense ? 'Edit Expense' : 'Add Expense'}</DialogTitle>
+              <DialogTitle>
+                {editingExpense ? "Edit Expense" : "Add Expense"}
+              </DialogTitle>
               <DialogDescription>
-                {editingExpense ? 'Update your expense details' : 'Add a new expense entry'}
+                {editingExpense
+                  ? "Update your expense details"
+                  : "Add a new expense entry"}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -227,7 +320,7 @@ export default function ExpensesPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 w-fit">
                 <Label htmlFor="date">Date</Label>
                 <Input
                   id="date"
@@ -238,11 +331,15 @@ export default function ExpensesPage() {
                 />
               </div>
               <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={handleCloseDialog}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCloseDialog}
+                >
                   Cancel
                 </Button>
                 <Button type="submit">
-                  {editingExpense ? 'Update' : 'Add'} Expense
+                  {editingExpense ? "Update" : "Add"} Expense
                 </Button>
               </div>
             </form>
@@ -254,11 +351,15 @@ export default function ExpensesPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Expenses
+            </CardTitle>
             <TrendingDown className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalExpenses.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              ${totalExpenses.toLocaleString()}
+            </div>
             <p className="text-xs text-muted-foreground">
               {expenses.length} expense entries
             </p>
@@ -276,9 +377,12 @@ export default function ExpensesPage() {
           <CardContent>
             <div className="space-y-4">
               {expensesByCategory.map((item) => (
-                <div key={item.category.id} className="flex items-center justify-between">
+                <div
+                  key={item.category.id}
+                  className="flex items-center justify-between"
+                >
                   <div className="flex items-center space-x-3">
-                    <div 
+                    <div
                       className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm"
                       style={{ backgroundColor: item.category.color }}
                     >
@@ -318,9 +422,12 @@ export default function ExpensesPage() {
           ) : (
             <div className="space-y-4">
               {expenses.map((expense) => (
-                <div key={expense.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div
+                  key={expense.id}
+                  className="flex items-center justify-between p-4 border rounded-lg"
+                >
                   <div className="flex items-center space-x-4">
-                    <div 
+                    <div
                       className="w-10 h-10 rounded-full flex items-center justify-center text-white"
                       style={{ backgroundColor: expense.category.color }}
                     >
@@ -329,7 +436,8 @@ export default function ExpensesPage() {
                     <div>
                       <p className="font-medium">{expense.description}</p>
                       <p className="text-sm text-muted-foreground">
-                        {expense.category.name} • {new Date(expense.date).toLocaleDateString()}
+                        {expense.category.name} •{" "}
+                        {new Date(expense.date).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
@@ -358,4 +466,4 @@ export default function ExpensesPage() {
       </Card>
     </div>
   );
-} 
+}

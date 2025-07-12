@@ -1,15 +1,28 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { Target, Plus, Edit, Trash2, Calendar } from 'lucide-react';
-import { FinancialGoal } from '@/lib/types';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Target, Plus, Edit, Trash2, Calendar } from "lucide-react";
+import { FinancialGoal } from "@/lib/types";
+import { useToast } from "@/hooks/use-toast";
 
 export default function GoalsPage() {
   const [goals, setGoals] = useState<FinancialGoal[]>([]);
@@ -19,45 +32,45 @@ export default function GoalsPage() {
   const { toast } = useToast();
 
   // Form state
-  const [name, setName] = useState('');
-  const [targetAmount, setTargetAmount] = useState('');
-  const [currentAmount, setCurrentAmount] = useState('');
-  const [targetDate, setTargetDate] = useState('');
-  const [description, setDescription] = useState('');
+  const [name, setName] = useState("");
+  const [targetAmount, setTargetAmount] = useState("");
+  const [currentAmount, setCurrentAmount] = useState("");
+  const [targetDate, setTargetDate] = useState("");
+  const [description, setDescription] = useState("");
 
   useEffect(() => {
     // Mock data - replace with API calls
     const mockGoals: FinancialGoal[] = [
       {
-        id: '1',
-        name: 'Emergency Fund',
+        id: "1",
+        name: "Emergency Fund",
         targetAmount: 10000,
         currentAmount: 6500,
-        targetDate: new Date('2024-12-31'),
-        description: 'Save 6 months of living expenses',
-        userId: '1',
+        targetDate: new Date("2024-12-31"),
+        description: "Save 6 months of living expenses",
+        userId: "1",
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        id: '2',
-        name: 'Vacation Fund',
+        id: "2",
+        name: "Vacation Fund",
         targetAmount: 5000,
         currentAmount: 2000,
-        targetDate: new Date('2024-06-30'),
-        description: 'Save for summer vacation',
-        userId: '1',
+        targetDate: new Date("2024-06-30"),
+        description: "Save for summer vacation",
+        userId: "1",
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        id: '3',
-        name: 'New Car',
+        id: "3",
+        name: "New Car",
         targetAmount: 25000,
         currentAmount: 8000,
-        targetDate: new Date('2025-03-31'),
-        description: 'Down payment for a new car',
-        userId: '1',
+        targetDate: new Date("2025-03-31"),
+        description: "Down payment for a new car",
+        userId: "1",
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -71,12 +84,12 @@ export default function GoalsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!name || !targetAmount || !currentAmount || !targetDate) {
       toast({
-        title: 'Error',
-        description: 'Please fill in all required fields',
-        variant: 'destructive',
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
       });
       return;
     }
@@ -88,22 +101,24 @@ export default function GoalsPage() {
       currentAmount: parseFloat(currentAmount),
       targetDate: new Date(targetDate),
       description,
-      userId: '1',
+      userId: "1",
       createdAt: editingGoal?.createdAt || new Date(),
       updatedAt: new Date(),
     };
 
     if (editingGoal) {
-      setGoals(goals.map(goal => goal.id === editingGoal.id ? newGoal : goal));
+      setGoals(
+        goals.map((goal) => (goal.id === editingGoal.id ? newGoal : goal))
+      );
       toast({
-        title: 'Success',
-        description: 'Goal updated successfully!',
+        title: "Success",
+        description: "Goal updated successfully!",
       });
     } else {
       setGoals([...goals, newGoal]);
       toast({
-        title: 'Success',
-        description: 'Goal created successfully!',
+        title: "Success",
+        description: "Goal created successfully!",
       });
     }
 
@@ -115,27 +130,27 @@ export default function GoalsPage() {
     setName(goal.name);
     setTargetAmount(goal.targetAmount.toString());
     setCurrentAmount(goal.currentAmount.toString());
-    setTargetDate(goal.targetDate.toISOString().split('T')[0]);
+    setTargetDate(goal.targetDate.toISOString().split("T")[0]);
     setDescription(goal.description);
     setIsDialogOpen(true);
   };
 
   const handleDelete = (id: string) => {
-    setGoals(goals.filter(goal => goal.id !== id));
+    setGoals(goals.filter((goal) => goal.id !== id));
     toast({
-      title: 'Success',
-      description: 'Goal deleted successfully!',
+      title: "Success",
+      description: "Goal deleted successfully!",
     });
   };
 
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setEditingGoal(null);
-    setName('');
-    setTargetAmount('');
-    setCurrentAmount('');
-    setTargetDate('');
-    setDescription('');
+    setName("");
+    setTargetAmount("");
+    setCurrentAmount("");
+    setTargetDate("");
+    setDescription("");
   };
 
   const getProgressPercentage = (goal: FinancialGoal) => {
@@ -152,20 +167,20 @@ export default function GoalsPage() {
 
   const getProgressColor = (goal: FinancialGoal) => {
     const percentage = getProgressPercentage(goal);
-    if (percentage >= 100) return 'bg-green-500';
-    if (percentage >= 75) return 'bg-blue-500';
-    if (percentage >= 50) return 'bg-yellow-500';
-    return 'bg-gray-500';
+    if (percentage >= 100) return "bg-green-500";
+    if (percentage >= 75) return "bg-blue-500";
+    if (percentage >= 50) return "bg-yellow-500";
+    return "bg-gray-500";
   };
 
   const getStatusText = (goal: FinancialGoal) => {
     const percentage = getProgressPercentage(goal);
     const daysRemaining = getDaysRemaining(goal);
-    
-    if (percentage >= 100) return 'Completed!';
-    if (daysRemaining < 0) return 'Overdue';
-    if (daysRemaining <= 30) return 'Due soon';
-    return 'In progress';
+
+    if (percentage >= 100) return "Completed!";
+    if (daysRemaining < 0) return "Overdue";
+    if (daysRemaining <= 30) return "Due soon";
+    return "In progress";
   };
 
   if (isLoading) {
@@ -181,7 +196,9 @@ export default function GoalsPage() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Financial Goals</h1>
-          <p className="text-gray-600 dark:text-gray-400">Set and track your financial objectives</p>
+          <p className="text-gray-600 dark:text-gray-400">
+            Set and track your financial objectives
+          </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -192,9 +209,13 @@ export default function GoalsPage() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingGoal ? 'Edit Goal' : 'Add Goal'}</DialogTitle>
+              <DialogTitle>
+                {editingGoal ? "Edit Goal" : "Add Goal"}
+              </DialogTitle>
               <DialogDescription>
-                {editingGoal ? 'Update your financial goal' : 'Set a new financial target'}
+                {editingGoal
+                  ? "Update your financial goal"
+                  : "Set a new financial target"}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -235,7 +256,7 @@ export default function GoalsPage() {
                   />
                 </div>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 w-fit">
                 <Label htmlFor="targetDate">Target Date</Label>
                 <Input
                   id="targetDate"
@@ -247,20 +268,26 @@ export default function GoalsPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="description">Description (Optional)</Label>
-                                  <Textarea
-                    id="description"
-                    placeholder="Enter goal description"
-                    value={description}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDescription(e.target.value)}
-                    rows={3}
-                  />
+                <Textarea
+                  id="description"
+                  placeholder="Enter goal description"
+                  value={description}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    setDescription(e.target.value)
+                  }
+                  rows={3}
+                />
               </div>
               <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={handleCloseDialog}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCloseDialog}
+                >
                   Cancel
                 </Button>
                 <Button type="submit">
-                  {editingGoal ? 'Update' : 'Add'} Goal
+                  {editingGoal ? "Update" : "Add"} Goal
                 </Button>
               </div>
             </form>
@@ -301,21 +328,32 @@ export default function GoalsPage() {
                   </div>
                   <div className="flex justify-between text-xs text-muted-foreground">
                     <span>{progressPercentage.toFixed(1)}% complete</span>
-                    <span className={daysRemaining < 0 ? 'text-red-500' : ''}>
-                      {Math.abs(daysRemaining)} days {daysRemaining < 0 ? 'overdue' : 'remaining'}
+                    <span className={daysRemaining < 0 ? "text-red-500" : ""}>
+                      {Math.abs(daysRemaining)} days{" "}
+                      {daysRemaining < 0 ? "overdue" : "remaining"}
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
-                    <span>Remaining: ${(goal.targetAmount - goal.currentAmount).toLocaleString()}</span>
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      statusText === 'Completed!' ? 'bg-green-100 text-green-800' :
-                      statusText === 'Overdue' ? 'bg-red-100 text-red-800' :
-                      statusText === 'Due soon' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-blue-100 text-blue-800'
-                    }`}>
+                    <span>
+                      Remaining: $
+                      {(
+                        goal.targetAmount - goal.currentAmount
+                      ).toLocaleString()}
+                    </span>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs ${
+                        statusText === "Completed!"
+                          ? "bg-green-100 text-green-800"
+                          : statusText === "Overdue"
+                            ? "bg-red-100 text-red-800"
+                            : statusText === "Due soon"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-blue-100 text-blue-800"
+                      }`}
+                    >
                       {statusText}
                     </span>
                   </div>
@@ -353,11 +391,12 @@ export default function GoalsPage() {
             <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-gray-500">No financial goals set yet</p>
             <p className="text-sm text-muted-foreground mt-2">
-              Create your first financial goal to start working towards your objectives
+              Create your first financial goal to start working towards your
+              objectives
             </p>
           </CardContent>
         </Card>
       )}
     </div>
   );
-} 
+}
