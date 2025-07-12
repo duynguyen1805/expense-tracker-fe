@@ -223,7 +223,7 @@ export default function IncomePage() {
                   placeholder="Enter amount"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="pl-10"
+                  // className="pl-10"
                   required
                 />
               </div>
@@ -235,7 +235,7 @@ export default function IncomePage() {
                   placeholder="Enter description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="pl-10"
+                  // className="pl-10"
                   required
                 />
               </div>
