@@ -30,6 +30,7 @@ import { TrendingUp, Plus, Edit, Trash2 } from "lucide-react";
 import { Income, Category } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api/client";
+import { listIncomeSourceName } from "@/lib/constants/incomeSourceList";
 
 export default function IncomePage() {
   const [incomes, setIncomes] = useState<Income[]>([]);
@@ -42,7 +43,8 @@ export default function IncomePage() {
   // Form state
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
-  const [categoryId, setCategoryId] = useState("");
+  const [customName, setCustomName] = useState("");
+  const [typeSourceName, setTypeSourceNameIncome] = useState("");
   const [date, setDate] = useState("");
 
   // Load data from API
@@ -84,7 +86,7 @@ export default function IncomePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!amount || !description || !categoryId || !date) {
+    if (!amount || !description || !date) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
@@ -97,7 +99,6 @@ export default function IncomePage() {
       const incomeData = {
         amount: parseFloat(amount),
         description,
-        categoryId,
         date: new Date(date).toISOString(),
       };
 
@@ -142,7 +143,7 @@ export default function IncomePage() {
     setEditingIncome(income);
     setAmount(income.amount.toString());
     setDescription(income.description);
-    setCategoryId(income.categoryId);
+    setTypeSourceNameIncome(income.categoryId);
     setDate(income.date.toISOString().split("T")[0]);
     setIsDialogOpen(true);
   };
@@ -172,7 +173,7 @@ export default function IncomePage() {
     setEditingIncome(null);
     setAmount("");
     setDescription("");
-    setCategoryId("");
+    setTypeSourceNameIncome("");
     setDate("");
   };
 
@@ -215,6 +216,30 @@ export default function IncomePage() {
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
+                <Label htmlFor="category">Source of Income</Label>
+                <Select
+                  value={typeSourceName}
+                  onValueChange={setTypeSourceNameIncome}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select source" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {listIncomeSourceName.map((listIncome) => (
+                      <SelectItem
+                        key={listIncome.sourceName}
+                        value={listIncome.sourceName}
+                      >
+                        <div className="flex items-center">
+                          <span className="mr-2">{listIncome.icon}</span>
+                          {listIncome.label}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="amount">Amount</Label>
                 <Input
                   id="amount"
@@ -228,7 +253,19 @@ export default function IncomePage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="customName">Custom name (optional)</Label>
+                <Input
+                  id="customName"
+                  type="text"
+                  placeholder="Salary from company X"
+                  value={customName}
+                  onChange={(e) => setCustomName(e.target.value)}
+                  // className="pl-10"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description (optional)</Label>
                 <Input
                   id="description"
                   type="text"
@@ -238,24 +275,6 @@ export default function IncomePage() {
                   // className="pl-10"
                   required
                 />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
-                <Select value={categoryId} onValueChange={setCategoryId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        <div className="flex items-center">
-                          <span className="mr-2">{category.icon}</span>
-                          {category.name}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
               <div className="space-y-2 w-fit">
                 <Label htmlFor="date">Date</Label>
