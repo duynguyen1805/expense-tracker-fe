@@ -1,3 +1,5 @@
+import { EIncomeTypeSourceName } from "../enums/income.enum";
+
 export interface User {
   id: string;
   email: string;
@@ -9,7 +11,7 @@ export interface User {
 export interface Category {
   id: string;
   name: string;
-  type: 'income' | 'expense';
+  type: "income" | "expense";
   color: string;
   icon: string;
   userId: string;
@@ -18,15 +20,17 @@ export interface Category {
 }
 
 export interface Income {
-  id: string;
+  incomeId: string;
+  sourceName: EIncomeTypeSourceName;
   amount: number;
+  customName: string;
   description: string;
-  categoryId: string;
-  category: Category;
   date: Date;
   userId: string;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt?: Date | null;
+  category: Category;
 }
 
 export interface Expense {
@@ -48,7 +52,7 @@ export interface Budget {
   spent: number;
   categoryId: string;
   category: Category;
-  period: 'monthly' | 'yearly';
+  period: "monthly" | "yearly";
   startDate: Date;
   endDate: Date;
   userId: string;
@@ -92,4 +96,4 @@ export interface DashboardStats {
     amount: number;
   }>;
   recentTransactions: Array<Income | Expense>;
-} 
+}

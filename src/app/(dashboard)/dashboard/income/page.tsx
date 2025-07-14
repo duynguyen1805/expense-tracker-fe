@@ -31,17 +31,17 @@ import { Income, Category } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api/client";
 import { listIncomeSourceName } from "@/lib/constants/incomeSourceList";
+import { formatCurrencyVND } from "@/lib/utils";
 
 export default function IncomePage() {
   const [incomes, setIncomes] = useState<Income[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingIncome, setEditingIncome] = useState<Income | null>(null);
   const { toast } = useToast();
 
   // Form state
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState<string>("");
   const [description, setDescription] = useState("");
   const [customName, setCustomName] = useState("");
   const [typeSourceName, setTypeSourceNameIncome] = useState("");
@@ -52,16 +52,6 @@ export default function IncomePage() {
     const loadData = async () => {
       try {
         setIsLoading(true);
-
-        // Load categories
-        const categoriesResponse = await api.categories.getAll();
-        if (categoriesResponse.data.success && categoriesResponse.data.data) {
-          setCategories(
-            categoriesResponse.data.data.filter(
-              (cat: Category) => cat.type === "income"
-            )
-          );
-        }
 
         // Load incomes
         const incomesResponse = await api.income.getAll();
@@ -83,13 +73,18 @@ export default function IncomePage() {
     loadData();
   }, []);
 
+  const handleChangeAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/[^\d]/g, ""); // chỉ lấy số
+    setAmount(raw);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!amount || !description || !date) {
+    if (!amount || !typeSourceName || !date) {
       toast({
         title: "Error",
-        description: "Please fill in all fields",
+        description: "Please fill in fields marked with *",
         variant: "destructive",
       });
       return;
@@ -98,17 +93,24 @@ export default function IncomePage() {
     try {
       const incomeData = {
         amount: parseFloat(amount),
+        typeSourceName,
+        customName,
         description,
         date: new Date(date).toISOString(),
       };
 
       if (editingIncome) {
         // Update existing income
-        const response = await api.income.update(editingIncome.id, incomeData);
+        const response = await api.income.update(
+          editingIncome.incomeId,
+          incomeData
+        );
         if (response.data.success) {
           setIncomes(
             incomes.map((income) =>
-              income.id === editingIncome.id ? response.data.data : income
+              income.incomeId === editingIncome.incomeId
+                ? response.data.data
+                : income
             )
           );
           toast({
@@ -143,7 +145,7 @@ export default function IncomePage() {
     setEditingIncome(income);
     setAmount(income.amount.toString());
     setDescription(income.description);
-    setTypeSourceNameIncome(income.categoryId);
+    setTypeSourceNameIncome(income.sourceName);
     setDate(income.date.toISOString().split("T")[0]);
     setIsDialogOpen(true);
   };
@@ -152,7 +154,7 @@ export default function IncomePage() {
     try {
       const response = await api.income.delete(id);
       if (response.data.success) {
-        setIncomes(incomes.filter((income) => income.id !== id));
+        setIncomes(incomes.filter((income) => income.incomeId !== id));
         toast({
           title: "Success",
           description: "Income deleted successfully!",
@@ -216,7 +218,14 @@ export default function IncomePage() {
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="category">Source of Income</Label>
+                <Label htmlFor="sourceName">
+                  {
+                    <div className="flex items-center py-[2px]">
+                      <div className="">Source name </div>
+                      <div className=" text-red-500 ml-1">*</div>
+                    </div>
+                  }
+                </Label>
                 <Select
                   value={typeSourceName}
                   onValueChange={setTypeSourceNameIncome}
@@ -240,18 +249,31 @@ export default function IncomePage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="amount">Amount</Label>
+                <Label htmlFor="amount">
+                  {
+                    <div className="flex items-center py-[2px]">
+                      <div className="">Amount </div>
+                      <div className=" text-red-500 ml-1">*</div>
+                    </div>
+                  }
+                </Label>
                 <Input
                   id="amount"
-                  type="number"
-                  step="0.01"
+                  type="text"
+                  inputMode="numeric"
+                  step="1"
                   placeholder="Enter amount"
                   value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  // className="pl-10"
+                  onChange={(e) => handleChangeAmount(e)}
                   required
                 />
+                {amount && (
+                  <p className="text-sm text-gray-500">
+                    = {formatCurrencyVND(Number(amount))}
+                  </p>
+                )}
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="customName">Custom name (optional)</Label>
                 <Input
@@ -336,15 +358,23 @@ export default function IncomePage() {
             <div className="space-y-4">
               {incomes.map((income) => (
                 <div
-                  key={income.id}
+                  key={income.sourceName}
                   className="flex items-center justify-between p-4 border rounded-lg"
                 >
                   <div className="flex items-center space-x-4">
                     <div
                       className="w-10 h-10 rounded-full flex items-center justify-center text-white"
-                      style={{ backgroundColor: income.category.color }}
+                      style={{
+                        backgroundColor: listIncomeSourceName.find(
+                          (item) => item.sourceName === income.sourceName
+                        )?.color,
+                      }}
                     >
-                      {income.category.icon}
+                      {
+                        listIncomeSourceName.find(
+                          (item) => item.sourceName === income.sourceName
+                        )?.icon
+                      }
                     </div>
                     <div>
                       <p className="font-medium">{income.description}</p>
@@ -368,7 +398,7 @@ export default function IncomePage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDelete(income.id)}
+                      onClick={() => handleDelete(income.incomeId)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

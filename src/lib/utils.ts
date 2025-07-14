@@ -9,3 +9,11 @@ export function extractDomain(url: string): string {
   const hostname = new URL(url).hostname;
   return hostname.replace(/^www\./, "");
 }
+
+export const formatCurrencyVND = (value: number): string => {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+    maximumFractionDigits: 0,
+  }).format(value);
+};
