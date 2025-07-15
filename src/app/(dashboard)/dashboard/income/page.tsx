@@ -146,6 +146,7 @@ export default function IncomePage() {
     setAmount(income.amount.toString());
     setDescription(income.description);
     setTypeSourceNameIncome(income.sourceName);
+    setCustomName(income.customName);
     setDate(income.date.toISOString().split("T")[0]);
     setIsDialogOpen(true);
   };
@@ -176,6 +177,7 @@ export default function IncomePage() {
     setAmount("");
     setDescription("");
     setTypeSourceNameIncome("");
+    setCustomName("");
     setDate("");
   };
 

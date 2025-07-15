@@ -51,55 +51,59 @@ export const api = {
 
   // Categories
   categories: {
-    getAll: () => apiClient.get<ApiResponse<any[]>>("/categories"),
+    getAll: () => apiClient.get<ApiResponse<any[]>>("/categories/get-all"),
     create: (data: any) =>
-      apiClient.post<ApiResponse<any>>("/categories", data),
+      apiClient.post<ApiResponse<any>>("/categories/create", data),
     update: (id: string, data: any) =>
-      apiClient.put<ApiResponse<any>>(`/categories/${id}`, data),
+      apiClient.put<ApiResponse<any>>(`/categories/update/${id}`, data),
     delete: (id: string) =>
-      apiClient.delete<ApiResponse<any>>(`/categories/${id}`),
+      apiClient.delete<ApiResponse<any>>(`/categories/delete/${id}`),
   },
 
   // Income
   income: {
     getAll: (params?: any) =>
-      apiClient.get<ApiResponse<any[]>>("/income", { params }),
-    create: (data: any) => apiClient.post<ApiResponse<any>>("/income", data),
+      apiClient.get<ApiResponse<any[]>>("/income/get-all", { params }),
+    create: (data: any) =>
+      apiClient.post<ApiResponse<any>>("/income/create", data),
     update: (id: string, data: any) =>
-      apiClient.put<ApiResponse<any>>(`/income/${id}`, data),
-    delete: (id: string) => apiClient.delete<ApiResponse<any>>(`/income/${id}`),
+      apiClient.put<ApiResponse<any>>(`/income/update/${id}`, data),
+    delete: (id: string) =>
+      apiClient.delete<ApiResponse<any>>(`/income/delete/${id}`),
   },
 
   // Expenses
   expenses: {
     getAll: (params?: any) =>
-      apiClient.get<ApiResponse<any[]>>("/expenses", { params }),
-    create: (data: any) => apiClient.post<ApiResponse<any>>("/expenses", data),
+      apiClient.get<ApiResponse<any[]>>("/expenses/get-all", { params }),
+    create: (data: any) =>
+      apiClient.post<ApiResponse<any>>("/expenses/create", data),
     update: (id: string, data: any) =>
-      apiClient.put<ApiResponse<any>>(`/expenses/${id}`, data),
+      apiClient.put<ApiResponse<any>>(`/expenses/update/${id}`, data),
     delete: (id: string) =>
-      apiClient.delete<ApiResponse<any>>(`/expenses/${id}`),
+      apiClient.delete<ApiResponse<any>>(`/expenses/delete/${id}`),
   },
 
   // Budgets
   budgets: {
-    getAll: () => apiClient.get<ApiResponse<any[]>>("/budgets"),
-    create: (data: any) => apiClient.post<ApiResponse<any>>("/budgets", data),
+    getAll: () => apiClient.get<ApiResponse<any[]>>("/budgets/get-all"),
+    create: (data: any) =>
+      apiClient.post<ApiResponse<any>>("/budgets/create", data),
     update: (id: string, data: any) =>
-      apiClient.put<ApiResponse<any>>(`/budgets/${id}`, data),
+      apiClient.put<ApiResponse<any>>(`/budgets/update/${id}`, data),
     delete: (id: string) =>
-      apiClient.delete<ApiResponse<any>>(`/budgets/${id}`),
+      apiClient.delete<ApiResponse<any>>(`/budgets/delete/${id}`),
   },
 
   // Financial Goals
   goals: {
-    getAll: () => apiClient.get<ApiResponse<any[]>>("/financial-goals"),
+    getAll: () => apiClient.get<ApiResponse<any[]>>("/financial-goals/get-all"),
     create: (data: any) =>
-      apiClient.post<ApiResponse<any>>("/financial-goals", data),
+      apiClient.post<ApiResponse<any>>("/financial-goals/create", data),
     update: (id: string, data: any) =>
-      apiClient.put<ApiResponse<any>>(`/financial-goals/${id}`, data),
+      apiClient.put<ApiResponse<any>>(`/financial-goals//update/${id}`, data),
     delete: (id: string) =>
-      apiClient.delete<ApiResponse<any>>(`/financial-goals/${id}`),
+      apiClient.delete<ApiResponse<any>>(`/financial-goals/delete/${id}`),
   },
 
   // Dashboard
