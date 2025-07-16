@@ -26,11 +26,13 @@ export interface Income {
   customName: string;
   description: string;
   date: Date;
+  month: number;
+  year: number;
   userId: string;
+  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date | null;
-  category: Category;
 }
 
 export interface Expense {

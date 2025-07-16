@@ -35,6 +35,7 @@ import { formatCurrencyVND } from "@/lib/utils";
 
 export default function IncomePage() {
   const [incomes, setIncomes] = useState<Income[]>([]);
+  const [totalIncome, setTotalIncomes] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingIncome, setEditingIncome] = useState<Income | null>(null);
@@ -54,9 +55,10 @@ export default function IncomePage() {
         setIsLoading(true);
 
         // Load incomes
-        const incomesResponse = await api.income.getAll();
+        const incomesResponse: any = await api.income.getAll();
         if (incomesResponse.data.success && incomesResponse.data.data) {
-          setIncomes(incomesResponse.data.data);
+          setIncomes(incomesResponse.data.data.incomes);
+          setTotalIncomes(incomesResponse.data.data.totalIncome);
         }
       } catch (error) {
         console.error("Error loading data:", error);
@@ -106,13 +108,14 @@ export default function IncomePage() {
           incomeData
         );
         if (response.data.success) {
-          setIncomes(
-            incomes.map((income) =>
-              income.incomeId === editingIncome.incomeId
-                ? response.data.data
-                : income
-            )
-          );
+          // setIncomes(
+          //   incomes.map((income) =>
+          //     income.incomeId === editingIncome.incomeId
+          //       ? response.data.data.incomes
+          //       : income
+          //   )
+          // );
+          // setTotalIncomes(response.data.data.totalIncome);
           toast({
             title: "Success",
             description: "Income updated successfully!",
@@ -122,12 +125,20 @@ export default function IncomePage() {
         // Create new income
         const response = await api.income.create(incomeData);
         if (response.data.success) {
-          setIncomes([...incomes, response.data.data]);
+          // setIncomes([...incomes, response.data.data.incomes]);
+          // setTotalIncomes(response.data.data.totalIncome);
           toast({
             title: "Success",
             description: "Income added successfully!",
           });
         }
+      }
+
+      // Reload incomes
+      const getAllIncomes: any = await api.income.getAll();
+      if (getAllIncomes.data.success && getAllIncomes.data.data) {
+        setIncomes(getAllIncomes.data.data.incomes);
+        setTotalIncomes(getAllIncomes.data.data.totalIncome);
       }
 
       handleCloseDialog();
@@ -181,7 +192,7 @@ export default function IncomePage() {
     setDate("");
   };
 
-  const totalIncome = incomes.reduce((sum, income) => sum + income.amount, 0);
+  // const totalIncome = incomes.reduce((sum, income) => sum + income.amount, 0);
 
   if (isLoading) {
     return (
@@ -381,7 +392,7 @@ export default function IncomePage() {
                     <div>
                       <p className="font-medium">{income.description}</p>
                       <p className="text-sm text-muted-foreground">
-                        {income.category.name} •{" "}
+                        {income.sourceName}
                         {new Date(income.date).toLocaleDateString()}
                       </p>
                     </div>
