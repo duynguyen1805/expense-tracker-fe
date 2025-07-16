@@ -95,10 +95,10 @@ export default function IncomePage() {
     try {
       const incomeData = {
         amount: parseFloat(amount),
-        typeSourceName,
+        sourceName: typeSourceName,
         customName,
         description,
-        date: new Date(date).toISOString(),
+        date: date,
       };
 
       if (editingIncome) {
@@ -158,7 +158,11 @@ export default function IncomePage() {
     setDescription(income.description);
     setTypeSourceNameIncome(income.sourceName);
     setCustomName(income.customName);
-    setDate(income.date.toISOString().split("T")[0]);
+    setDate(
+      typeof income.date === "string"
+        ? income.date.split("T")[0]
+        : income.date.toISOString().split("T")[0]
+    );
     setIsDialogOpen(true);
   };
 
@@ -166,7 +170,13 @@ export default function IncomePage() {
     try {
       const response = await api.income.delete(id);
       if (response.data.success) {
-        setIncomes(incomes.filter((income) => income.incomeId !== id));
+        // setIncomes(incomes.filter((income) => income.incomeId !== id));
+        // Reload incomes
+        const getAllIncomes: any = await api.income.getAll();
+        if (getAllIncomes.data.success && getAllIncomes.data.data) {
+          setIncomes(getAllIncomes.data.data.incomes);
+          setTotalIncomes(getAllIncomes.data.data.totalIncome);
+        }
         toast({
           title: "Success",
           description: "Income deleted successfully!",
@@ -347,7 +357,7 @@ export default function IncomePage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${totalIncome.toLocaleString()}
+              {formatCurrencyVND(totalIncome).toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
               {incomes.length} income entries
@@ -391,15 +401,23 @@ export default function IncomePage() {
                     </div>
                     <div>
                       <p className="font-medium">{income.description}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {income.sourceName}
-                        {new Date(income.date).toLocaleDateString()}
+                      <p className="text-sm text-muted-foreground flex items-center">
+                        <span>{income.sourceName}</span>
+                        {income?.customName && (
+                          <span className="px-[2px]">
+                            {" "}
+                            - {income.customName} -{" "}
+                          </span>
+                        )}
+                        <span>
+                          {new Date(income.date).toLocaleDateString()}
+                        </span>
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
                     <p className="font-bold text-green-600">
-                      +${income.amount}
+                      +{formatCurrencyVND(income.amount)}
                     </p>
                     <Button
                       variant="ghost"

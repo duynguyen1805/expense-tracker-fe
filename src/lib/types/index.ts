@@ -25,7 +25,7 @@ export interface Income {
   amount: number;
   customName: string;
   description: string;
-  date: Date;
+  date: Date | string;
   month: number;
   year: number;
   userId: string;

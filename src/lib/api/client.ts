@@ -55,7 +55,7 @@ export const api = {
     create: (data: any) =>
       apiClient.post<ApiResponse<any>>("/categories/create", data),
     update: (id: string, data: any) =>
-      apiClient.put<ApiResponse<any>>(`/categories/update/${id}`, data),
+      apiClient.post<ApiResponse<any>>(`/categories/update/${id}`, data),
     delete: (id: string) =>
       apiClient.delete<ApiResponse<any>>(`/categories/delete/${id}`),
   },
@@ -67,7 +67,7 @@ export const api = {
     create: (data: any) =>
       apiClient.post<ApiResponse<any>>("/income/create", data),
     update: (id: string, data: any) =>
-      apiClient.put<ApiResponse<any>>(`/income/update/${id}`, data),
+      apiClient.post<ApiResponse<any>>(`/income/update/${id}`, data),
     delete: (id: string) =>
       apiClient.delete<ApiResponse<any>>(`/income/delete/${id}`),
   },
@@ -79,7 +79,7 @@ export const api = {
     create: (data: any) =>
       apiClient.post<ApiResponse<any>>("/expenses/create", data),
     update: (id: string, data: any) =>
-      apiClient.put<ApiResponse<any>>(`/expenses/update/${id}`, data),
+      apiClient.post<ApiResponse<any>>(`/expenses/update/${id}`, data),
     delete: (id: string) =>
       apiClient.delete<ApiResponse<any>>(`/expenses/delete/${id}`),
   },
@@ -90,7 +90,7 @@ export const api = {
     create: (data: any) =>
       apiClient.post<ApiResponse<any>>("/budgets/create", data),
     update: (id: string, data: any) =>
-      apiClient.put<ApiResponse<any>>(`/budgets/update/${id}`, data),
+      apiClient.post<ApiResponse<any>>(`/budgets/update/${id}`, data),
     delete: (id: string) =>
       apiClient.delete<ApiResponse<any>>(`/budgets/delete/${id}`),
   },
@@ -101,7 +101,7 @@ export const api = {
     create: (data: any) =>
       apiClient.post<ApiResponse<any>>("/financial-goals/create", data),
     update: (id: string, data: any) =>
-      apiClient.put<ApiResponse<any>>(`/financial-goals//update/${id}`, data),
+      apiClient.post<ApiResponse<any>>(`/financial-goals//update/${id}`, data),
     delete: (id: string) =>
       apiClient.delete<ApiResponse<any>>(`/financial-goals/delete/${id}`),
   },
