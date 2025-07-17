@@ -191,6 +191,7 @@ export default function BudgetsPage() {
     setName("");
     setAmount("");
     setCategoryId("");
+    setSelectedCategory(null);
     setPeriod("MONTHLY");
     setStartDate("");
     setEndDate("");

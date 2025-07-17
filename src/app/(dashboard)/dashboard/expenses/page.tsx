@@ -46,6 +46,7 @@ export default function ExpensesPage() {
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [budgetId, setBudgetId] = useState("");
+  const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
   const [date, setDate] = useState("");
 
   useEffect(() => {
@@ -127,7 +128,8 @@ export default function ExpensesPage() {
     setEditingExpense(expense);
     setAmount(expense.amount.toString());
     setDescription(expense.description);
-    setBudgetId(expense.budgetId);
+    setBudgetId(expense.budgetId.toString());
+    setSelectedBudget(expense.budget);
     setDate(expense.date.toISOString().split("T")[0]);
     setIsDialogOpen(true);
   };
@@ -146,6 +148,7 @@ export default function ExpensesPage() {
     setAmount("");
     setDescription("");
     setBudgetId("");
+    setSelectedBudget(null);
     setDate("");
   };
 
@@ -228,13 +231,24 @@ export default function ExpensesPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="budget">Budget</Label>
-                <Select value={budgetId} onValueChange={setBudgetId}>
+                <Select
+                  value={budgetId}
+                  onValueChange={(budgetId) => {
+                    const found =
+                      budgets.find((bud) => bud.budgetId === budgetId) || null;
+                    setSelectedBudget(found);
+                    setBudgetId(budgetId);
+                  }}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select budget" />
                   </SelectTrigger>
                   <SelectContent>
                     {budgets.map((budget) => (
-                      <SelectItem key={budget.budgetId} value={budget.budgetId}>
+                      <SelectItem
+                        key={budget.budgetId.toString()}
+                        value={budget.budgetId.toString()}
+                      >
                         {budget.budgetName}
                       </SelectItem>
                     ))}
