@@ -27,10 +27,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Target, Plus, Edit, Trash2, AlertCircle } from "lucide-react";
-import { Budget, Category } from "@/lib/types";
+import { ApiResponse, Budget, Category } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
+import { defaultListCategories } from "@/lib/constants/categoriesList";
+
+import { api } from "@/lib/api/client";
+import { useAuth } from "@/lib/context/auth-context";
+import { formatCurrencyVND } from "@/lib/utils";
 
 export default function BudgetsPage() {
+  const { user } = useAuth();
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -42,91 +48,40 @@ export default function BudgetsPage() {
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
   const [categoryId, setCategoryId] = useState("");
-  const [period, setPeriod] = useState<"monthly" | "yearly">("monthly");
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null
+  );
+  const [period, setPeriod] = useState<"MONTHLY" | "YEARLY">("MONTHLY");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
   useEffect(() => {
-    // Mock data - replace with API calls
-    const mockCategories: Category[] = [
-      {
-        id: "1",
-        name: "Food",
-        type: "expense",
-        color: "#ef4444",
-        icon: "🍕",
-        userId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: "2",
-        name: "Transport",
-        type: "expense",
-        color: "#3b82f6",
-        icon: "🚗",
-        userId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: "3",
-        name: "Entertainment",
-        type: "expense",
-        color: "#8b5cf6",
-        icon: "🎬",
-        userId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: "4",
-        name: "Shopping",
-        type: "expense",
-        color: "#f59e0b",
-        icon: "🛍️",
-        userId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ];
+    const loadData = async () => {
+      try {
+        setIsLoading(true);
 
-    const mockBudgets: Budget[] = [
-      {
-        id: "1",
-        name: "Food Budget",
-        amount: 500,
-        spent: 350,
-        categoryId: "1",
-        category: mockCategories[0],
-        period: "monthly",
-        startDate: new Date("2024-01-01"),
-        endDate: new Date("2024-01-31"),
-        userId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: "2",
-        name: "Transport Budget",
-        amount: 200,
-        spent: 180,
-        categoryId: "2",
-        category: mockCategories[1],
-        period: "monthly",
-        startDate: new Date("2024-01-01"),
-        endDate: new Date("2024-01-31"),
-        userId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ];
+        // Load categories
+        const categoriesResponse: any = await api.categories.getAll();
+        const budgetsReponse: any = await api.budgets.getAll();
+        if (categoriesResponse.data.success && categoriesResponse.data.data) {
+          setCategories(categoriesResponse.data.data);
+        }
+        if (budgetsReponse.data.success && budgetsReponse.data.data) {
+          setBudgets(budgetsReponse.data.data);
+        }
+      } catch (error) {
+        console.error("Error loading data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load data",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    setTimeout(() => {
-      setCategories(mockCategories);
-      setBudgets(mockBudgets);
-      setIsLoading(false);
-    }, 1000);
+    loadData();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -141,58 +96,89 @@ export default function BudgetsPage() {
       return;
     }
 
-    const selectedCategory = categories.find((cat) => cat.id === categoryId);
-    if (!selectedCategory) return;
-
-    const newBudget: Budget = {
-      id: editingBudget?.id || Date.now().toString(),
-      name,
-      amount: parseFloat(amount),
+    const newBudget = {
+      budgetId: editingBudget?.budgetId || Date.now().toString(),
+      budgetName: name,
+      totalAmount: parseFloat(amount),
       spent: editingBudget?.spent || 0,
       categoryId,
-      category: selectedCategory,
       period,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
-      userId: "1",
+      userId: user?.id || "",
       createdAt: editingBudget?.createdAt || new Date(),
       updatedAt: new Date(),
+      category: categories.find((cat) => cat.categoryId === categoryId)!,
     };
 
     if (editingBudget) {
-      setBudgets(
-        budgets.map((budget) =>
-          budget.id === editingBudget.id ? newBudget : budget
-        )
+      const response = await api.budgets.update(
+        editingBudget.budgetId,
+        newBudget
       );
-      toast({
-        title: "Success",
-        description: "Budget updated successfully!",
-      });
+      if (response.data.success) {
+        toast({
+          title: "Success",
+          description: "Budget updated successfully!",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to update budget",
+          variant: "destructive",
+        });
+      }
     } else {
-      setBudgets([...budgets, newBudget]);
-      toast({
-        title: "Success",
-        description: "Budget created successfully!",
-      });
+      const response = await api.budgets.create(newBudget);
+      if (response.data.success) {
+        toast({
+          title: "Success",
+          description: "Budget created successfully!",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to create budget",
+          variant: "destructive",
+        });
+      }
+    }
+
+    // Reload budgets
+    const getAllBudgets: any = await api.budgets.getAll();
+    if (getAllBudgets.data.success && getAllBudgets.data.data) {
+      setBudgets(getAllBudgets.data.data);
     }
 
     handleCloseDialog();
   };
 
+  const handleChangeAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/[^\d]/g, ""); // chỉ lấy số
+    setAmount(raw);
+  };
+
   const handleEdit = (budget: Budget) => {
     setEditingBudget(budget);
-    setName(budget.name);
-    setAmount(budget.amount.toString());
+    setName(budget.budgetName);
+    setAmount(budget.totalAmount.toString());
     setCategoryId(budget.categoryId);
     setPeriod(budget.period);
-    setStartDate(budget.startDate.toISOString().split("T")[0]);
-    setEndDate(budget.endDate.toISOString().split("T")[0]);
+    setStartDate(
+      typeof budget.startDate === "string"
+        ? budget.startDate
+        : budget.startDate.toISOString().split("T")[0]
+    );
+    setEndDate(
+      typeof budget.endDate === "string"
+        ? budget.endDate
+        : budget.endDate.toISOString().split("T")[0]
+    );
     setIsDialogOpen(true);
   };
 
   const handleDelete = (id: string) => {
-    setBudgets(budgets.filter((budget) => budget.id !== id));
+    setBudgets(budgets.filter((budget) => budget.budgetId !== id));
     toast({
       title: "Success",
       description: "Budget deleted successfully!",
@@ -205,13 +191,13 @@ export default function BudgetsPage() {
     setName("");
     setAmount("");
     setCategoryId("");
-    setPeriod("monthly");
+    setPeriod("MONTHLY");
     setStartDate("");
     setEndDate("");
   };
 
   const getProgressPercentage = (budget: Budget) => {
-    return Math.min((budget.spent / budget.amount) * 100, 100);
+    return Math.min((budget.spent / budget.totalAmount) * 100, 100);
   };
 
   const getProgressColor = (budget: Budget) => {
@@ -276,22 +262,39 @@ export default function BudgetsPage() {
                   step="0.01"
                   placeholder="Enter amount"
                   value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
+                  onChange={(e) => handleChangeAmount(e)}
                   required
                 />
+                {amount && (
+                  <p className="text-sm text-gray-500">
+                    = {formatCurrencyVND(Number(amount))}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
-                <Select value={categoryId} onValueChange={setCategoryId}>
+                <Select
+                  value={categoryId}
+                  onValueChange={(categoryId) => {
+                    const found =
+                      categories.find((cat) => cat.categoryId === categoryId) ||
+                      null;
+                    setSelectedCategory(found);
+                    setCategoryId(categoryId);
+                  }}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
+                    {categories.map((category: Category) => (
+                      <SelectItem
+                        key={category.categoryId.toString()}
+                        value={category.categoryId.toString()}
+                      >
                         <div className="flex items-center">
-                          <span className="mr-2">{category.icon}</span>
-                          {category.name}
+                          <span className="mr-2">{category.categoryIcon}</span>
+                          {category.categoryName}
                         </div>
                       </SelectItem>
                     ))}
@@ -302,7 +305,7 @@ export default function BudgetsPage() {
                 <Label htmlFor="period">Period</Label>
                 <Select
                   value={period}
-                  onValueChange={(value: "monthly" | "yearly") =>
+                  onValueChange={(value: "MONTHLY" | "YEARLY") =>
                     setPeriod(value)
                   }
                 >
@@ -359,11 +362,11 @@ export default function BudgetsPage() {
         {budgets.map((budget) => {
           const progressPercentage = getProgressPercentage(budget);
           const progressColor = getProgressColor(budget);
-          const isOverBudget = budget.spent > budget.amount;
+          const isOverBudget = budget.spent > budget.totalAmount;
 
           return (
             <Card
-              key={budget.id}
+              key={budget.budgetId}
               className={
                 isOverBudget ? "border-red-200 bg-red-50 dark:bg-red-950" : ""
               }
@@ -373,13 +376,17 @@ export default function BudgetsPage() {
                   <div className="flex items-center space-x-2">
                     <div
                       className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm"
-                      style={{ backgroundColor: budget.category.color }}
+                      style={{ backgroundColor: budget.category.categoryColor }}
                     >
-                      {budget.category.icon}
+                      {budget.category.categoryIcon}
                     </div>
                     <div>
-                      <CardTitle className="text-lg">{budget.name}</CardTitle>
-                      <CardDescription>{budget.category.name}</CardDescription>
+                      <CardTitle className="text-lg">
+                        {budget.budgetName}
+                      </CardTitle>
+                      <CardDescription>
+                        {budget.category.categoryName}
+                      </CardDescription>
                     </div>
                   </div>
                   {isOverBudget && (
@@ -391,7 +398,7 @@ export default function BudgetsPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Spent: ${budget.spent}</span>
-                    <span>Budget: ${budget.amount}</span>
+                    <span>Budget: ${budget.totalAmount}</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
                     <div
@@ -408,7 +415,8 @@ export default function BudgetsPage() {
                 <div className="flex justify-between items-center">
                   <div className="text-sm">
                     <p>
-                      Remaining: ${Math.max(budget.amount - budget.spent, 0)}
+                      Remaining: $
+                      {Math.max(budget.totalAmount - budget.spent, 0)}
                     </p>
                     <p className="text-muted-foreground">
                       {new Date(budget.startDate).toLocaleDateString()} -{" "}
@@ -426,7 +434,7 @@ export default function BudgetsPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDelete(budget.id)}
+                      onClick={() => handleDelete(budget.budgetId)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

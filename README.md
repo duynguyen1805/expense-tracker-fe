@@ -1,6 +1,6 @@
-# Personal Finance Manager
+# Expense Tracker Manager
 
-A modern web application for managing personal finances, built with Next.js 15, TypeScript, and Tailwind CSS.
+A modern web application for managing Expense Trackers, built with Next.js 15, TypeScript, and Tailwind CSS.
 
 ## Features
 

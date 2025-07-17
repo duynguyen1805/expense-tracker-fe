@@ -1,3 +1,4 @@
+import { ECategoriesType } from "../enums/category.enum";
 import { EIncomeTypeSourceName } from "../enums/income.enum";
 
 export interface User {
@@ -9,14 +10,17 @@ export interface User {
 }
 
 export interface Category {
-  id: string;
-  name: string;
-  type: "income" | "expense";
-  color: string;
-  icon: string;
+  categoryId: string;
+  categoryName: string;
+  typeCategory: ECategoriesType;
+  categoryColor: string;
+  categoryIcon: string;
   userId: string;
+  isActive: boolean;
+  allocatedAmount: number;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt?: Date | null;
 }
 
 export interface Income {
@@ -39,8 +43,8 @@ export interface Expense {
   id: string;
   amount: number;
   description: string;
-  categoryId: string;
-  category: Category;
+  budgetId: string;
+  budget: Budget;
   date: Date;
   userId: string;
   createdAt: Date;
@@ -48,13 +52,13 @@ export interface Expense {
 }
 
 export interface Budget {
-  id: string;
-  name: string;
-  amount: number;
+  budgetId: string;
+  budgetName: string;
+  totalAmount: number;
   spent: number;
   categoryId: string;
   category: Category;
-  period: "monthly" | "yearly";
+  period: "MONTHLY" | "YEARLY"; // "monthly" | "yearly";
   startDate: Date;
   endDate: Date;
   userId: string;

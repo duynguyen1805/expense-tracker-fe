@@ -14,13 +14,17 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Personal Finance Manager",
-  description: "Manage your personal finances, track expenses, and achieve your financial goals.",
+  title: "Expense Tracker Manager",
+  description:
+    "Manage your Expense Trackers, track expenses, and achieve your financial goals.",
   authors: [
-    { name: "Personal Finance App", url: "https://personal-finance-app.vercel.app/" },
+    {
+      name: "Expense Tracker App",
+      url: "https://personal-finance-app.vercel.app/",
+    },
   ],
   keywords: [
-    "Personal Finance",
+    "Expense Tracker",
     "Expense Tracker",
     "Budget Management",
     "Financial Goals",
@@ -28,8 +32,8 @@ export const metadata: Metadata = {
     "Income Tracking",
     "Financial Planning",
   ],
-  creator: "Personal Finance App",
-  publisher: "Personal Finance App",
+  creator: "Expense Tracker App",
+  publisher: "Expense Tracker App",
 };
 
 export default function RootLayout({
@@ -53,10 +57,10 @@ export default function RootLayout({
             <Toaster />
           </AuthProvider>
         </ThemeProvider> */}
-          <AuthProvider>
-            {children}
-            <Toaster />
-          </AuthProvider>
+        <AuthProvider>
+          {children}
+          <Toaster />
+        </AuthProvider>
 
         <Analytics />
         <SpeedInsights />

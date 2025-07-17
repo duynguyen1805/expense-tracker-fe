@@ -27,12 +27,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TrendingDown, Plus, Edit, Trash2 } from "lucide-react";
-import { Expense, Category } from "@/lib/types";
+import { Expense, Category, Budget } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
+import { api } from "@/lib/api/client";
+import { useAuth } from "@/lib/context/auth-context";
 
 export default function ExpensesPage() {
+  const { user } = useAuth();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [budgets, setBudgets] = useState<Budget[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
@@ -41,121 +45,40 @@ export default function ExpensesPage() {
   // Form state
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
-  const [categoryId, setCategoryId] = useState("");
+  const [budgetId, setBudgetId] = useState("");
   const [date, setDate] = useState("");
 
   useEffect(() => {
-    // Mock data - replace with API calls
-    const mockCategories: Category[] = [
-      {
-        id: "1",
-        name: "Food",
-        type: "expense",
-        color: "#ef4444",
-        icon: "🍕",
-        userId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: "2",
-        name: "Transport",
-        type: "expense",
-        color: "#3b82f6",
-        icon: "🚗",
-        userId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: "3",
-        name: "Entertainment",
-        type: "expense",
-        color: "#8b5cf6",
-        icon: "🎬",
-        userId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: "4",
-        name: "Shopping",
-        type: "expense",
-        color: "#f59e0b",
-        icon: "🛍️",
-        userId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: "5",
-        name: "Bills",
-        type: "expense",
-        color: "#06b6d4",
-        icon: "📄",
-        userId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: "6",
-        name: "Other",
-        type: "expense",
-        color: "#6b7280",
-        icon: "📦",
-        userId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ];
-
-    const mockExpenses: Expense[] = [
-      {
-        id: "1",
-        amount: 50,
-        description: "Lunch at restaurant",
-        categoryId: "1",
-        category: mockCategories[0],
-        date: new Date("2024-01-15"),
-        userId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: "2",
-        amount: 30,
-        description: "Gas for car",
-        categoryId: "2",
-        category: mockCategories[1],
-        date: new Date("2024-01-14"),
-        userId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: "3",
-        amount: 25,
-        description: "Movie tickets",
-        categoryId: "3",
-        category: mockCategories[2],
-        date: new Date("2024-01-13"),
-        userId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ];
-
-    setTimeout(() => {
-      setCategories(mockCategories);
-      setExpenses(mockExpenses);
-      setIsLoading(false);
-    }, 1000);
+    const loadData = async () => {
+      try {
+        setIsLoading(true);
+        // Load categories
+        const categoriesResponse: any = await api.categories.getAll();
+        const budgetsResponse: any = await api.budgets.getAll();
+        if (categoriesResponse.data.success && categoriesResponse.data.data) {
+          setCategories(categoriesResponse.data.data);
+        }
+        if (budgetsResponse.data.success && budgetsResponse.data.data) {
+          setBudgets(budgetsResponse.data.data);
+        }
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error loading data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load data",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+      }
+    };
+    loadData();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!amount || !description || !categoryId || !date) {
+    if (!amount || !description || !budgetId || !date) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
@@ -164,17 +87,17 @@ export default function ExpensesPage() {
       return;
     }
 
-    const selectedCategory = categories.find((cat) => cat.id === categoryId);
-    if (!selectedCategory) return;
+    const selectedBudget = budgets.find((b) => b.budgetId === budgetId);
+    if (!selectedBudget) return;
 
     const newExpense: Expense = {
       id: editingExpense?.id || Date.now().toString(),
       amount: parseFloat(amount),
       description,
-      categoryId,
-      category: selectedCategory,
+      budgetId,
+      budget: selectedBudget,
       date: new Date(date),
-      userId: "1",
+      userId: user?.id || "",
       createdAt: editingExpense?.createdAt || new Date(),
       updatedAt: new Date(),
     };
@@ -204,7 +127,7 @@ export default function ExpensesPage() {
     setEditingExpense(expense);
     setAmount(expense.amount.toString());
     setDescription(expense.description);
-    setCategoryId(expense.categoryId);
+    setBudgetId(expense.budgetId);
     setDate(expense.date.toISOString().split("T")[0]);
     setIsDialogOpen(true);
   };
@@ -222,7 +145,7 @@ export default function ExpensesPage() {
     setEditingExpense(null);
     setAmount("");
     setDescription("");
-    setCategoryId("");
+    setBudgetId("");
     setDate("");
   };
 
@@ -230,16 +153,17 @@ export default function ExpensesPage() {
     (sum, expense) => sum + expense.amount,
     0
   );
-  const expensesByCategory = categories
-    .map((category) => {
-      const categoryExpenses = expenses.filter(
-        (expense) => expense.categoryId === category.id
+  // thống kê expenses theo budget
+  const expensesByBudget = budgets
+    .map((budget) => {
+      const budgetExpenses = expenses.filter(
+        (expense) => expense.budgetId === budget.budgetId
       );
-      const total = categoryExpenses.reduce(
+      const total = budgetExpenses.reduce(
         (sum, expense) => sum + expense.amount,
         0
       );
-      return { category, total, count: categoryExpenses.length };
+      return { budget, total, count: budgetExpenses.length };
     })
     .filter((item) => item.count > 0);
 
@@ -303,18 +227,15 @@ export default function ExpensesPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
-                <Select value={categoryId} onValueChange={setCategoryId}>
+                <Label htmlFor="budget">Budget</Label>
+                <Select value={budgetId} onValueChange={setBudgetId}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue placeholder="Select budget" />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        <div className="flex items-center">
-                          <span className="mr-2">{category.icon}</span>
-                          {category.name}
-                        </div>
+                    {budgets.map((budget) => (
+                      <SelectItem key={budget.budgetId} value={budget.budgetId}>
+                        {budget.budgetName}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -368,28 +289,31 @@ export default function ExpensesPage() {
       </div>
 
       {/* Expenses by Category */}
-      {expensesByCategory.length > 0 && (
+      {expensesByBudget.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Expenses by Category</CardTitle>
+            <CardTitle>Expenses by Budget</CardTitle>
             <CardDescription>Breakdown of your spending</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {expensesByCategory.map((item) => (
+              {expensesByBudget.map((item) => (
                 <div
-                  key={item.category.id}
+                  key={item.budget.budgetId}
                   className="flex items-center justify-between"
                 >
                   <div className="flex items-center space-x-3">
                     <div
                       className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm"
-                      style={{ backgroundColor: item.category.color }}
+                      style={{
+                        backgroundColor:
+                          item.budget.category?.categoryColor || "#ccc",
+                      }}
                     >
-                      {item.category.icon}
+                      {item.budget.category?.categoryIcon || "?"}
                     </div>
                     <div>
-                      <p className="font-medium">{item.category.name}</p>
+                      <p className="font-medium">{item.budget.budgetName}</p>
                       <p className="text-sm text-muted-foreground">
                         {item.count} transactions
                       </p>
@@ -429,15 +353,18 @@ export default function ExpensesPage() {
                   <div className="flex items-center space-x-4">
                     <div
                       className="w-10 h-10 rounded-full flex items-center justify-center text-white"
-                      style={{ backgroundColor: expense.category.color }}
+                      style={{
+                        backgroundColor:
+                          expense.budget.category?.categoryColor || "#ccc",
+                      }}
                     >
-                      {expense.category.icon}
+                      {expense.budget.category?.categoryIcon || "?"}
                     </div>
                     <div>
                       <p className="font-medium">{expense.description}</p>
                       <p className="text-sm text-muted-foreground">
-                        {expense.category.name} •{" "}
-                        {new Date(expense.date).toLocaleDateString()}
+                        {expense.budget.category?.categoryName || "No Category"}{" "}
+                        • {new Date(expense.date).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
