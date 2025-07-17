@@ -97,11 +97,10 @@ export default function BudgetsPage() {
     }
 
     const newBudget = {
-      budgetId: editingBudget?.budgetId || Date.now().toString(),
       budgetName: name,
       totalAmount: parseFloat(amount),
       spent: editingBudget?.spent || 0,
-      categoryId,
+      categoryId: +categoryId,
       period,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
@@ -313,8 +312,8 @@ export default function BudgetsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="monthly">Monthly</SelectItem>
-                    <SelectItem value="yearly">Yearly</SelectItem>
+                    <SelectItem value="MONTHLY">Monthly</SelectItem>
+                    <SelectItem value="YEARLY">Yearly</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
