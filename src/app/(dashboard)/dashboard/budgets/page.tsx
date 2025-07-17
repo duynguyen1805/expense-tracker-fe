@@ -161,16 +161,17 @@ export default function BudgetsPage() {
     setEditingBudget(budget);
     setName(budget.budgetName);
     setAmount(budget.totalAmount.toString());
-    setCategoryId(budget.categoryId);
+    setCategoryId(budget.categoryId.toString());
+    setSelectedCategory(budget.category);
     setPeriod(budget.period);
     setStartDate(
       typeof budget.startDate === "string"
-        ? budget.startDate
+        ? budget.startDate.split("T")[0]
         : budget.startDate.toISOString().split("T")[0]
     );
     setEndDate(
       typeof budget.endDate === "string"
-        ? budget.endDate
+        ? budget.endDate.split("T")[0]
         : budget.endDate.toISOString().split("T")[0]
     );
     setIsDialogOpen(true);
@@ -396,8 +397,8 @@ export default function BudgetsPage() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span>Spent: ${budget.spent}</span>
-                    <span>Budget: ${budget.totalAmount}</span>
+                    <span>Spent: {formatCurrencyVND(budget.spent)}</span>
+                    <span>Budget: {formatCurrencyVND(budget.totalAmount)}</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
                     <div
@@ -413,16 +414,20 @@ export default function BudgetsPage() {
 
                 <div className="flex justify-between items-center">
                   <div className="text-sm">
-                    <p>
-                      Remaining: $
-                      {Math.max(budget.totalAmount - budget.spent, 0)}
+                    <p className="items-start space-x-1">
+                      <span className="">Remaining:</span>
+                      <span className="">
+                        {formatCurrencyVND(
+                          Math.max(budget.totalAmount - budget.spent, 0)
+                        )}
+                      </span>
                     </p>
                     <p className="text-muted-foreground">
                       {new Date(budget.startDate).toLocaleDateString()} -{" "}
                       {new Date(budget.endDate).toLocaleDateString()}
                     </p>
                   </div>
-                  <div className="flex space-x-1">
+                  <div className="flex flex-col items-center">
                     <Button
                       variant="ghost"
                       size="sm"

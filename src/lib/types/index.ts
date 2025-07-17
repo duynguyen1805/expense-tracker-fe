@@ -59,8 +59,8 @@ export interface Budget {
   categoryId: string;
   category: Category;
   period: "MONTHLY" | "YEARLY"; // "monthly" | "yearly";
-  startDate: Date;
-  endDate: Date;
+  startDate: Date | string;
+  endDate: Date | string;
   userId: string;
   createdAt: Date;
   updatedAt: Date;
