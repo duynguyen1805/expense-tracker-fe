@@ -35,7 +35,7 @@ import { useAuth } from "@/lib/context/auth-context";
 export default function ExpensesPage() {
   const { user } = useAuth();
   const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  // const [categories, setCategories] = useState<Category[]>([]);
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -53,12 +53,12 @@ export default function ExpensesPage() {
     const loadData = async () => {
       try {
         setIsLoading(true);
-        // Load categories
-        const categoriesResponse: any = await api.categories.getAll();
+        // Load budgets
+        // const categoriesResponse: any = await api.categories.getAll();
         const budgetsResponse: any = await api.budgets.getAll();
-        if (categoriesResponse.data.success && categoriesResponse.data.data) {
-          setCategories(categoriesResponse.data.data);
-        }
+        // if (categoriesResponse.data.success && categoriesResponse.data.data) {
+        //   setCategories(categoriesResponse.data.data);
+        // }
         if (budgetsResponse.data.success && budgetsResponse.data.data) {
           setBudgets(budgetsResponse.data.data);
         }
