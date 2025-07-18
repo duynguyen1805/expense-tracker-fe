@@ -31,6 +31,7 @@ import { Expense, Category, Budget } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api/client";
 import { useAuth } from "@/lib/context/auth-context";
+import { formatCurrencyVND } from "@/lib/utils";
 
 export default function ExpensesPage() {
   const { user } = useAuth();
@@ -56,11 +57,15 @@ export default function ExpensesPage() {
         // Load budgets
         // const categoriesResponse: any = await api.categories.getAll();
         const budgetsResponse: any = await api.budgets.getAll();
+        const expensesResponse: any = await api.expenses.getAll();
         // if (categoriesResponse.data.success && categoriesResponse.data.data) {
         //   setCategories(categoriesResponse.data.data);
         // }
         if (budgetsResponse.data.success && budgetsResponse.data.data) {
           setBudgets(budgetsResponse.data.data);
+        }
+        if (expensesResponse.data.success && expensesResponse.data.data) {
+          setExpenses(expensesResponse.data.data);
         }
         setIsLoading(false);
       } catch (error) {
@@ -76,6 +81,11 @@ export default function ExpensesPage() {
     loadData();
   }, []);
 
+  const handleChangeAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/[^\d]/g, ""); // chỉ lấy số
+    setAmount(raw);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -88,36 +98,47 @@ export default function ExpensesPage() {
       return;
     }
 
-    const selectedBudget = budgets.find((b) => b.budgetId === budgetId);
-    if (!selectedBudget) return;
+    try {
+      const expensesData = {
+        amount: parseFloat(amount),
+        description,
+        budgetId: +budgetId,
+        expenseDate: new Date(date),
+      };
 
-    const newExpense: Expense = {
-      id: editingExpense?.id || Date.now().toString(),
-      amount: parseFloat(amount),
-      description,
-      budgetId,
-      budget: selectedBudget,
-      date: new Date(date),
-      userId: user?.id || "",
-      createdAt: editingExpense?.createdAt || new Date(),
-      updatedAt: new Date(),
-    };
+      if (editingExpense) {
+        // Update existing expense
+        const response = await api.expenses.update(
+          editingExpense.expenseId,
+          expensesData
+        );
+        if (response.data.success) {
+          toast({
+            title: "Success",
+            description: "Expense updated successfully!",
+          });
+        }
+      } else {
+        const response = await api.expenses.create(expensesData);
+        if (response.data.success) {
+          toast({
+            title: "Success",
+            description: "Expense created successfully!",
+          });
+        }
+      }
 
-    if (editingExpense) {
-      setExpenses(
-        expenses.map((expense) =>
-          expense.id === editingExpense.id ? newExpense : expense
-        )
-      );
+      // Reload expenses
+      const expensesResponse: any = await api.expenses.getAll();
+      if (expensesResponse.data.success && expensesResponse.data.data) {
+        setExpenses(expensesResponse.data.data);
+      }
+    } catch (error) {
+      console.error("Error creating expense:", error);
       toast({
-        title: "Success",
-        description: "Expense updated successfully!",
-      });
-    } else {
-      setExpenses([...expenses, newExpense]);
-      toast({
-        title: "Success",
-        description: "Expense added successfully!",
+        title: "Error",
+        description: "Failed to create expense",
+        variant: "destructive",
       });
     }
 
@@ -129,17 +150,30 @@ export default function ExpensesPage() {
     setAmount(expense.amount.toString());
     setDescription(expense.description);
     setBudgetId(expense.budgetId.toString());
-    setSelectedBudget(expense.budget);
-    setDate(expense.date.toISOString().split("T")[0]);
+    setSelectedBudget(expense.budgets);
+    setDate(
+      typeof expense.expenseDate === "string"
+        ? expense.expenseDate.split("T")[0]
+        : expense.expenseDate.toISOString().split("T")[0]
+    );
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    setExpenses(expenses.filter((expense) => expense.id !== id));
-    toast({
-      title: "Success",
-      description: "Expense deleted successfully!",
-    });
+  const handleDelete = async (id: string) => {
+    const response = await api.expenses.delete(id);
+    if (response.data.success) {
+      setExpenses(expenses.filter((expense) => expense.expenseId !== id));
+      toast({
+        title: "Success",
+        description: "Expense deleted successfully!",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to delete expense",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleCloseDialog = () => {
@@ -153,7 +187,7 @@ export default function ExpensesPage() {
   };
 
   const totalExpenses = expenses.reduce(
-    (sum, expense) => sum + expense.amount,
+    (sum, expense) => sum + +expense.amount,
     0
   );
   // thống kê expenses theo budget
@@ -163,7 +197,7 @@ export default function ExpensesPage() {
         (expense) => expense.budgetId === budget.budgetId
       );
       const total = budgetExpenses.reduce(
-        (sum, expense) => sum + expense.amount,
+        (sum, expense) => sum + +expense.amount,
         0
       );
       return { budget, total, count: budgetExpenses.length };
@@ -210,13 +244,19 @@ export default function ExpensesPage() {
                 <Label htmlFor="amount">Amount</Label>
                 <Input
                   id="amount"
-                  type="number"
-                  step="0.01"
+                  type="text"
+                  inputMode="numeric"
+                  step="1"
                   placeholder="Enter amount"
                   value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
+                  onChange={(e) => handleChangeAmount(e)}
                   required
                 />
+                {amount && (
+                  <p className="text-sm text-gray-500">
+                    = {formatCurrencyVND(Number(amount))}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
@@ -293,7 +333,7 @@ export default function ExpensesPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${totalExpenses.toLocaleString()}
+              {formatCurrencyVND(totalExpenses).toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
               {expenses.length} expense entries
@@ -334,7 +374,9 @@ export default function ExpensesPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium text-red-600">${item.total}</p>
+                    <p className="font-medium text-red-600">
+                      ${formatCurrencyVND(item.total)}
+                    </p>
                     <p className="text-sm text-muted-foreground">
                       {Math.round((item.total / totalExpenses) * 100)}%
                     </p>
@@ -361,7 +403,7 @@ export default function ExpensesPage() {
             <div className="space-y-4">
               {expenses.map((expense) => (
                 <div
-                  key={expense.id}
+                  key={expense.expenseId}
                   className="flex items-center justify-between p-4 border rounded-lg"
                 >
                   <div className="flex items-center space-x-4">
@@ -369,21 +411,24 @@ export default function ExpensesPage() {
                       className="w-10 h-10 rounded-full flex items-center justify-center text-white"
                       style={{
                         backgroundColor:
-                          expense.budget.category?.categoryColor || "#ccc",
+                          expense.budgets.category?.categoryColor || "#ccc",
                       }}
                     >
-                      {expense.budget.category?.categoryIcon || "?"}
+                      {expense.budgets.category?.categoryIcon || "?"}
                     </div>
                     <div>
                       <p className="font-medium">{expense.description}</p>
                       <p className="text-sm text-muted-foreground">
-                        {expense.budget.category?.categoryName || "No Category"}{" "}
-                        • {new Date(expense.date).toLocaleDateString()}
+                        {expense.budgets.category?.categoryName ||
+                          "No Category"}{" "}
+                        • {new Date(expense.expenseDate).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <p className="font-bold text-red-600">-${expense.amount}</p>
+                    <p className="font-bold text-red-600">
+                      -{formatCurrencyVND(expense.amount)}
+                    </p>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -394,7 +439,7 @@ export default function ExpensesPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDelete(expense.id)}
+                      onClick={() => handleDelete(expense.expenseId)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

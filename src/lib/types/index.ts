@@ -40,12 +40,12 @@ export interface Income {
 }
 
 export interface Expense {
-  id: string;
+  expenseId: string;
   amount: number;
   description: string;
   budgetId: string;
-  budget: Budget;
-  date: Date;
+  budgets: Budget;
+  expenseDate: Date | string;
   userId: string;
   createdAt: Date;
   updatedAt: Date;
