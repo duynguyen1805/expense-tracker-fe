@@ -107,16 +107,41 @@ export interface ApiResponse<T> {
   error?: string;
 }
 
-export interface DashboardStats {
+export interface DashboardCategory {
+  categoryId: string;
+  categoryName: string;
+  typeCategory: string;
+  categoryColor: string;
+  categoryIcon: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DashboardTopCategory {
+  category: DashboardCategory;
+  amount: number;
+}
+
+export interface DashboardTransaction {
+  expenseId: string;
+  amount: number;
+  description: string;
+  categoryId: string;
+  category: DashboardCategory;
+  date: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DashboardData {
   totalIncome: number;
   totalExpenses: number;
   balance: number;
   monthlyIncome: number;
   monthlyExpenses: number;
   monthlyBalance: number;
-  topCategories: Array<{
-    category: Category;
-    amount: number;
-  }>;
-  recentTransactions: Array<Income | Expense>;
+  topCategories: DashboardTopCategory[];
+  recentTransactions: DashboardTransaction[];
 }

@@ -72,7 +72,7 @@ export default function DashboardLayout({
         />
         <div className="fixed inset-y-0 left-0 flex w-64 flex-col bg-white dark:bg-gray-800">
           <div className="flex h-16 items-center justify-between px-4">
-            <h1 className="text-xl font-bold">Finance App</h1>
+            <h1 className="text-xl font-bold">Expense Tracker App</h1>
             <Button
               variant="ghost"
               size="sm"
@@ -123,7 +123,7 @@ export default function DashboardLayout({
       <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
         <div className="flex flex-col flex-grow bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
           <div className="flex h-16 items-center px-4">
-            <h1 className="text-xl font-bold">Finance App</h1>
+            <h1 className="text-xl font-bold">Expense Tracker</h1>
           </div>
           <nav className="flex-1 space-y-1 px-2 py-4">
             {navigation.map((item) => (
@@ -174,7 +174,7 @@ export default function DashboardLayout({
             <Menu className="h-5 w-5" />
           </Button>
           <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-            <h1 className="text-lg font-semibold">Finance App</h1>
+            <h1 className="text-lg font-semibold">Expense Tracker</h1>
           </div>
         </div>
 

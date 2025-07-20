@@ -1,39 +1,44 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { TrendingUp, TrendingDown, DollarSign, Target } from 'lucide-react';
-import { DashboardStats } from '@/lib/types';
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { TrendingUp, TrendingDown, DollarSign, Target } from "lucide-react";
+import { DashboardData, DashboardTransaction } from "@/lib/types";
+import { toast } from "@/hooks/use-toast";
+import { api } from "@/lib/api/client";
+import { formatCurrencyVND } from "@/lib/utils";
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [stats, setStats] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Mock data for now - replace with actual API call
-    const mockStats: DashboardStats = {
-      totalIncome: 5000,
-      totalExpenses: 3200,
-      balance: 1800,
-      monthlyIncome: 2500,
-      monthlyExpenses: 1800,
-      monthlyBalance: 700,
-      topCategories: [
-        { category: { id: '1', name: 'Food', type: 'expense', color: '#ef4444', icon: '🍕', userId: '1', createdAt: new Date(), updatedAt: new Date() }, amount: 800 },
-        { category: { id: '2', name: 'Transport', type: 'expense', color: '#3b82f6', icon: '🚗', userId: '1', createdAt: new Date(), updatedAt: new Date() }, amount: 600 },
-        { category: { id: '3', name: 'Entertainment', type: 'expense', color: '#8b5cf6', icon: '🎬', userId: '1', createdAt: new Date(), updatedAt: new Date() }, amount: 400 },
-      ],
-      recentTransactions: [
-        { id: '1', amount: 100, description: 'Lunch', categoryId: '1', category: { id: '1', name: 'Food', type: 'expense', color: '#ef4444', icon: '🍕', userId: '1', createdAt: new Date(), updatedAt: new Date() }, date: new Date(), userId: '1', createdAt: new Date(), updatedAt: new Date() },
-        { id: '2', amount: 50, description: 'Gas', categoryId: '2', category: { id: '2', name: 'Transport', type: 'expense', color: '#3b82f6', icon: '🚗', userId: '1', createdAt: new Date(), updatedAt: new Date() }, date: new Date(), userId: '1', createdAt: new Date(), updatedAt: new Date() },
-      ],
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        const response = await api.dashboard.getStats();
+        if (response.data.success && response.data.data) {
+          setStats(response.data.data);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.log("Error fetching data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch data",
+          variant: "destructive",
+        });
+      }
     };
 
-    setTimeout(() => {
-      setStats(mockStats);
-      setIsLoading(false);
-    }, 1000);
+    loadData();
   }, []);
 
   if (isLoading) {
@@ -56,7 +61,9 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-gray-600 dark:text-gray-400">Welcome back! Here&apos;s your financial overview.</p>
+        <p className="text-gray-600 dark:text-gray-400">
+          Welcome back! Here&apos;s your financial overview.
+        </p>
       </div>
 
       {/* Stats Cards */}
@@ -67,22 +74,28 @@ export default function DashboardPage() {
             <TrendingUp className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${stats.totalIncome.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              {formatCurrencyVND(stats.totalIncome).toLocaleString()}
+            </div>
             <p className="text-xs text-muted-foreground">
-              +${stats.monthlyIncome} this month
+              +{formatCurrencyVND(stats.monthlyIncome)} this month
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Expenses
+            </CardTitle>
             <TrendingDown className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${stats.totalExpenses.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              {formatCurrencyVND(stats.totalExpenses).toLocaleString()}
+            </div>
             <p className="text-xs text-muted-foreground">
-              ${stats.monthlyExpenses} this month
+              {formatCurrencyVND(stats.monthlyExpenses)} this month
             </p>
           </CardContent>
         </Card>
@@ -93,9 +106,11 @@ export default function DashboardPage() {
             <DollarSign className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${stats.balance.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              {formatCurrencyVND(stats.balance).toLocaleString()}
+            </div>
             <p className="text-xs text-muted-foreground">
-              +${stats.monthlyBalance} this month
+              +{formatCurrencyVND(stats.monthlyBalance)} this month
             </p>
           </CardContent>
         </Card>
@@ -109,9 +124,7 @@ export default function DashboardPage() {
             <div className="text-2xl font-bold">
               {Math.round((stats.monthlyBalance / stats.monthlyIncome) * 100)}%
             </div>
-            <p className="text-xs text-muted-foreground">
-              of income saved
-            </p>
+            <p className="text-xs text-muted-foreground">of income saved</p>
           </CardContent>
         </Card>
       </div>
@@ -121,28 +134,37 @@ export default function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>Top Expense Categories</CardTitle>
-            <CardDescription>Your highest spending categories this month</CardDescription>
+            <CardDescription>
+              Your highest spending categories this month
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {stats.topCategories.map((item, index) => (
-                <div key={item.category.id} className="flex items-center justify-between">
+                <div
+                  key={item.category.categoryId}
+                  className="flex items-center justify-between"
+                >
                   <div className="flex items-center space-x-3">
-                    <div 
+                    <div
                       className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm"
-                      style={{ backgroundColor: item.category.color }}
+                      style={{ backgroundColor: item.category.categoryColor }}
                     >
-                      {item.category.icon}
+                      {item.category.categoryIcon}
                     </div>
                     <div>
-                      <p className="font-medium">{item.category.name}</p>
+                      <p className="font-medium">
+                        {item.category.categoryName}
+                      </p>
                       <p className="text-sm text-muted-foreground">
-                        ${item.amount} spent
+                        {formatCurrencyVND(item.amount)} spent
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium">${item.amount}</p>
+                    <p className="font-medium">
+                      {formatCurrencyVND(item.amount)}
+                    </p>
                     <p className="text-sm text-muted-foreground">
                       {Math.round((item.amount / stats.monthlyExpenses) * 100)}%
                     </p>
@@ -160,32 +182,42 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {stats.recentTransactions.map((transaction) => (
-                <div key={transaction.id} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div 
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm"
-                      style={{ backgroundColor: transaction.category.color }}
-                    >
-                      {transaction.category.icon}
+              {stats.recentTransactions.map(
+                (transaction: DashboardTransaction) => (
+                  <div
+                    key={transaction.expenseId}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm"
+                        style={{
+                          backgroundColor: transaction.category.categoryColor,
+                        }}
+                      >
+                        {transaction.category.categoryIcon}
+                      </div>
+                      <div>
+                        <p className="font-medium">{transaction.description}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {transaction.category.categoryName}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium">{transaction.description}</p>
+                    <div className="text-right">
+                      <p
+                        className={`font-medium ${transaction.amount > 0 ? "text-green-600" : "text-red-600"}`}
+                      >
+                        {transaction.amount > 0 ? "+" : ""}
+                        {formatCurrencyVND(Math.abs(transaction.amount))}
+                      </p>
                       <p className="text-sm text-muted-foreground">
-                        {transaction.category.name}
+                        {new Date(transaction.date).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className={`font-medium ${transaction.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {transaction.amount > 0 ? '+' : ''}${Math.abs(transaction.amount)}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(transaction.date).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </CardContent>
         </Card>
@@ -195,7 +227,9 @@ export default function DashboardPage() {
       <Card>
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Common tasks to manage your finances</CardDescription>
+          <CardDescription>
+            Common tasks to manage your finances
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -220,4 +254,4 @@ export default function DashboardPage() {
       </Card>
     </div>
   );
-} 
+}

@@ -123,6 +123,6 @@ export const api = {
 
   // Dashboard
   dashboard: {
-    getStats: () => apiClient.get<ApiResponse<any>>("/dashboard/stats"),
+    getStats: () => apiClient.get<ApiResponse<any>>("/dashboard"),
   },
 };
