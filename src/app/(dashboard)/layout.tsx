@@ -97,12 +97,12 @@ export default function DashboardLayout({
           <div className="border-t border-gray-200 dark:border-gray-700 p-4">
             <div className="flex items-center px-2 py-2 text-sm font-medium text-gray-600 dark:text-gray-300">
               <div className="mr-3 h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
-                {`${user.firstName?.charAt(0) + user.lastName?.charAt(0)}` ||
+                {user.firstName?.charAt(0) + user.lastName?.charAt(0) ||
                   user.email.charAt(0)}
               </div>
               <div>
                 <p className="text-sm font-medium">
-                  `{user.firstName} {user.lastName}`
+                  {user.firstName} {user.lastName}
                 </p>
                 <p className="text-xs text-gray-500">{user.email}</p>
               </div>
@@ -140,12 +140,12 @@ export default function DashboardLayout({
           <div className="border-t border-gray-200 dark:border-gray-700 p-4">
             <div className="flex items-center px-2 py-2 text-sm font-medium text-gray-600 dark:text-gray-300">
               <div className="mr-3 h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
-                {`${user.firstName?.charAt(0) + user.lastName?.charAt(0)}` ||
+                {user.firstName?.charAt(0) + user.lastName?.charAt(0) ||
                   user.email.charAt(0)}
               </div>
               <div>
                 <p className="text-sm font-medium">
-                  `{user.firstName} {user.lastName}`
+                  {user.firstName} {user.lastName}
                 </p>
                 <p className="text-xs text-gray-500">{user.email}</p>
               </div>
