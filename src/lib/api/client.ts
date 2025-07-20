@@ -37,6 +37,13 @@ apiClient.interceptors.response.use(
 );
 
 export const api = {
+  // Users endpoints
+  user: {
+    getProfile: (id: string) => apiClient.get<ApiResponse<any>>(`/user/${id}`),
+    updateProfile: (data: any) =>
+      apiClient.post<ApiResponse<any>>("/user/update/profile", data),
+  },
+
   // Auth endpoints
   auth: {
     register: (data: { email: string; password: string; name: string }) =>
@@ -49,9 +56,12 @@ export const api = {
       apiClient.post<ApiResponse<any>>("/auth/resend-otp", data),
     generate2FA: () => apiClient.get<ApiResponse<any>>("/auth/2fa/generate"),
     get2FAStatus: () => apiClient.post<ApiResponse<any>>("/auth/2fa/status"),
-    enable2FA: (data: { code: string }) => apiClient.post<ApiResponse<any>>("/auth/2fa/enable", data),
-    disable2FA: (data: { code: string; emailOtp?: string }) => apiClient.post<ApiResponse<any>>("/auth/2fa/disable", data),
-    sendDisable2FAOtp: () => apiClient.post<ApiResponse<any>>("/auth/2fa/send-disable-otp"),
+    enable2FA: (data: { code: string }) =>
+      apiClient.post<ApiResponse<any>>("/auth/2fa/enable", data),
+    disable2FA: (data: { code: string; emailOtp?: string }) =>
+      apiClient.post<ApiResponse<any>>("/auth/2fa/disable", data),
+    sendDisable2FAOtp: () =>
+      apiClient.post<ApiResponse<any>>("/auth/2fa/send-disable-otp"),
   },
 
   // Categories

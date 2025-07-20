@@ -417,7 +417,7 @@ export default function SettingsPage() {
                     id="theme"
                     value={theme}
                     onChange={(e) => setTheme(e.target.value as any)}
-                    className="w-full p-2 border rounded-md"
+                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors text-foreground file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                   >
                     <option value="light">Light</option>
                     <option value="dark">Dark</option>
@@ -430,7 +430,7 @@ export default function SettingsPage() {
                     id="currency"
                     value={currency}
                     onChange={(e) => setCurrency(e.target.value as any)}
-                    className="w-full p-2 border rounded-md"
+                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors text-foreground file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                   >
                     <option value="VND">VNĐ (₫)</option>
                     <option value="USD">USD ($)</option>

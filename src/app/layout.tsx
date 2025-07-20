@@ -6,6 +6,8 @@ import { Outfit } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/context/auth-context";
 import { Toaster } from "@/components/ui/toaster";
+import { ThemeCustomProvider } from "@/lib/context/theme-context";
+import { CurrencyCustomProvider } from "@/lib/context/currency-context";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -57,10 +59,14 @@ export default function RootLayout({
             <Toaster />
           </AuthProvider>
         </ThemeProvider> */}
-        <AuthProvider>
-          {children}
-          <Toaster />
-        </AuthProvider>
+        <ThemeCustomProvider>
+          <CurrencyCustomProvider>
+            <AuthProvider>
+              {children}
+              <Toaster />
+            </AuthProvider>
+          </CurrencyCustomProvider>
+        </ThemeCustomProvider>
 
         <Analytics />
         <SpeedInsights />

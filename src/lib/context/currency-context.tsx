@@ -1,6 +1,9 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+"use client";
 
-export type Currency = "VND" | "USD" | "EUR" | "GBP";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { api } from "../api/client";
+
+export type Currency = "VNĐ" | "USD" | "EUR" | "GBP";
 
 interface CurrencyContextType {
   currency: Currency;
@@ -8,26 +11,41 @@ interface CurrencyContextType {
 }
 
 const CurrencyContext = createContext<CurrencyContextType>({
-  currency: "VND",
+  currency: "VNĐ",
   setCurrency: () => {},
 });
 
 export const useCurrency = () => useContext(CurrencyContext);
 
-export const CurrencyProvider = ({ children }: { children: React.ReactNode }) => {
-  const [currency, setCurrencyState] = useState<Currency>("VND");
+export const CurrencyCustomProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const [currency, setCurrencyState] = useState<Currency>("VNĐ");
 
   useEffect(() => {
-    // Lấy currency từ localStorage
     const saved = localStorage.getItem("currency") as Currency;
     if (saved) setCurrencyState(saved);
-    // TODO: Nếu đã đăng nhập, gọi API GET /api/user/profile để lấy currency từ backend
+
+    const user = JSON.parse(localStorage.getItem("user_data") || "{}");
+    if (user) setCurrencyState(user.currency);
   }, []);
 
-  const setCurrency = (c: Currency) => {
+  const setCurrency = async (c: Currency) => {
     setCurrencyState(c);
     localStorage.setItem("currency", c);
-    // TODO: Nếu đã đăng nhập, gọi API PUT /api/user/profile với { currency: c }
+
+    let user = JSON.parse(localStorage.getItem("user_data") || "{}");
+    if (user) {
+      const userUpdated = await api.user.updateProfile({ currency: c });
+      console.log("userUpdated", userUpdated);
+      if (userUpdated.data.success) {
+        user.currency = c;
+        localStorage.setItem("user_data", JSON.stringify(user));
+      }
+      setCurrencyState(c);
+    }
   };
 
   return (
@@ -35,4 +53,4 @@ export const CurrencyProvider = ({ children }: { children: React.ReactNode }) =>
       {children}
     </CurrencyContext.Provider>
   );
-}; 
+};
