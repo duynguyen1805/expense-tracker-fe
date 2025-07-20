@@ -19,6 +19,9 @@ export default function LoginPage() {
   const { login, user } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
+  const [show2FA, setShow2FA] = useState(false);
+  const [twoFaCode, setTwoFaCode] = useState('');
+  const [loginError, setLoginError] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -29,20 +32,33 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setLoginError('');
 
     try {
-      await login(email, password);
+      // Nếu show2FA, gửi thêm twoFaCode
+      if (show2FA) {
+        await login(email, password, twoFaCode);
+      } else {
+        await login(email, password);
+      }
       toast({
         title: 'Success',
         description: 'Logged in successfully!',
       });
       router.push('/dashboard');
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Login failed',
-        variant: 'destructive',
-      });
+    } catch (error: any) {
+      // Nếu lỗi là REQUIRED_TWO_FA, hiển thị input 2FA
+      if (error?.code === 'REQUIRED_TWO_FA' || error?.message === 'REQUIRED_TWO_FA') {
+        setShow2FA(true);
+        setLoginError('Please enter your 2FA code.');
+      } else {
+        toast({
+          title: 'Error',
+          description: error instanceof Error ? error.message : 'Login failed',
+          variant: 'destructive',
+        });
+        setLoginError(error?.message || 'Login failed');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -98,6 +114,22 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
+            {show2FA && (
+              <div className="space-y-2">
+                <Label htmlFor="twoFaCode">2FA Code</Label>
+                <Input
+                  id="twoFaCode"
+                  type="text"
+                  placeholder="Enter your 2FA code"
+                  value={twoFaCode}
+                  onChange={(e) => setTwoFaCode(e.target.value)}
+                  required
+                />
+              </div>
+            )}
+            {loginError && (
+              <div className="text-red-500 text-sm">{loginError}</div>
+            )}
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? 'Signing in...' : 'Sign in'}
             </Button>

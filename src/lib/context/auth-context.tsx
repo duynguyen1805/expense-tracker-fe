@@ -6,7 +6,7 @@ import { User } from "@/lib/types";
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, twoFaCode?: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => void;
   verifyOtp: (email: string, otp: string) => Promise<void>;
@@ -45,22 +45,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, twoFaCode?: string) => {
     try {
       const API_BASE_URL =
         process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
+      const body: any = { email, password };
+      if (twoFaCode) body.twoFaCode = twoFaCode;
 
       const response = await fetch(`${API_BASE_URL}/auth/login-account`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(body),
       });
 
       const res = await response.json();
 
       if (!response.ok) {
+        // response về lỗi có code, ném object lỗi để FE nhận diện
+        if (res.code) throw res;
         throw new Error(res.message || "Login failed");
       }
 
