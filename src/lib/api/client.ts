@@ -47,6 +47,11 @@ export const api = {
       apiClient.post<ApiResponse<any>>("/auth/verify-otp", data),
     resendOtp: (data: { email: string }) =>
       apiClient.post<ApiResponse<any>>("/auth/resend-otp", data),
+    generate2FA: () => apiClient.get<ApiResponse<any>>("/auth/2fa/generate"),
+    get2FAStatus: () => apiClient.post<ApiResponse<any>>("/auth/2fa/status"),
+    enable2FA: (data: { code: string }) => apiClient.post<ApiResponse<any>>("/auth/2fa/enable", data),
+    disable2FA: (data: { code: string; emailOtp?: string }) => apiClient.post<ApiResponse<any>>("/auth/2fa/disable", data),
+    sendDisable2FAOtp: () => apiClient.post<ApiResponse<any>>("/auth/2fa/send-disable-otp"),
   },
 
   // Categories

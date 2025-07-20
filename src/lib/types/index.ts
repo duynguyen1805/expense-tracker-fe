@@ -1,12 +1,29 @@
 import { ECategoriesType } from "../enums/category.enum";
 import { EIncomeTypeSourceName } from "../enums/income.enum";
 
+export enum EnumUserStatus {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+}
+
 export interface User {
   id: string;
   email: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  status: EnumUserStatus;
+  accountType: string;
+  lastChangePasswordAt: Date;
+  isFrozen: boolean;
+  avatar: number;
+  isTwoFactorAuthEnabled: boolean;
+  twoFactorAuthSecret: string;
+  timeActiveTwoFactorAuth: number;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt?: Date | null;
+  theme?: "light" | "dark" | "system";
+  currency?: "VND" | "USD" | "EUR" | "GBP";
 }
 
 export interface Category {
