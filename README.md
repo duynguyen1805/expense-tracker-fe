@@ -160,6 +160,7 @@ src/
 ## Backend Integration
 
 The app is designed to work with a backend API that includes:
+https://github.com/duynguyen1805/expense-tracker-api
 
 - **Tables**: users, income, expenses, budgets, categories, financial_goals
 - **Authentication**: JWT tokens with email OTP verification
