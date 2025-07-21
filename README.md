@@ -67,7 +67,7 @@ A modern web application for managing Expense Trackers, built with Next.js 15, T
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 20+ (20.18.1)
 - npm or yarn
 
 ### Installation
