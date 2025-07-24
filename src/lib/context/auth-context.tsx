@@ -10,6 +10,7 @@ interface AuthContextType {
   register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => void;
   verifyOtp: (email: string, otp: string) => Promise<void>;
+  refreshToken: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,18 +28,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [refreshTokenValue, setRefreshTokenValue] = useState<string | null>(null);
 
   useEffect(() => {
     // Check if user is logged in on app start
     const token = localStorage.getItem("auth_token");
+    const refresh = localStorage.getItem("refresh_token");
     const userData = localStorage.getItem("user_data");
 
-    if (token && userData) {
+    if (token && refresh && userData) {
       try {
         setUser(JSON.parse(userData));
+        setAccessToken(token);
+        setRefreshTokenValue(refresh);
       } catch (error) {
         console.error("Error parsing user data:", error);
         localStorage.removeItem("auth_token");
+        localStorage.removeItem("refresh_token");
         localStorage.removeItem("user_data");
       }
     }
@@ -64,17 +71,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const res = await response.json();
 
       if (!response.ok) {
-        // response về lỗi có code, ném object lỗi để FE nhận diện
         if (res.code) throw res;
         throw new Error(res.message || "Login failed");
       }
 
       localStorage.setItem("auth_token", res.data.token);
+      localStorage.setItem("refresh_token", res.data.refreshToken);
       localStorage.setItem("user_data", JSON.stringify(res.data.user));
-
+      setAccessToken(res.data.token);
+      setRefreshTokenValue(res.data.refreshToken);
       setUser(res.data.user);
     } catch (error) {
       throw error;
+    }
+  };
+
+  const refreshToken = async (): Promise<boolean> => {
+    try {
+      const API_BASE_URL =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+      const refresh = localStorage.getItem("refresh_token");
+      if (!refresh) throw new Error("No refresh token");
+      const response = await fetch(`${API_BASE_URL}/auth/refresh-token`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refreshToken: refresh }),
+      });
+      const res = await response.json();
+      if (!response.ok) {
+        throw new Error(res.message || "Refresh token failed");
+      }
+      localStorage.setItem("auth_token", res.data.token);
+      if (res.data.refreshToken) {
+        localStorage.setItem("refresh_token", res.data.refreshToken);
+        setRefreshTokenValue(res.data.refreshToken);
+      }
+      setAccessToken(res.data.token);
+      return true;
+    } catch (error) {
+      logout();
+      return false;
     }
   };
 
@@ -118,7 +156,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       localStorage.setItem("auth_token", data.token);
+      localStorage.setItem("refresh_token", data.refreshToken);
       localStorage.setItem("user_data", JSON.stringify(data.user));
+      setAccessToken(data.token);
+      setRefreshTokenValue(data.refreshToken);
       setUser(data.user);
     } catch (error) {
       throw error;
@@ -127,7 +168,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const logout = () => {
     localStorage.removeItem("auth_token");
+    localStorage.removeItem("refresh_token");
     localStorage.removeItem("user_data");
+    setAccessToken(null);
+    setRefreshTokenValue(null);
     setUser(null);
   };
 
@@ -138,6 +182,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     register,
     logout,
     verifyOtp,
+    refreshToken,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

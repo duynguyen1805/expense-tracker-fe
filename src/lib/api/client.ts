@@ -1,5 +1,6 @@
 import axios from "axios";
 import { ApiResponse } from "@/lib/types";
+import { AuthProvider } from "@/lib/context/auth-context";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -27,10 +28,43 @@ apiClient.interceptors.request.use(
 // Response interceptor to handle errors
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem("auth_token");
-      window.location.href = "/login";
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        const refreshToken = localStorage.getItem("refresh_token");
+        if (!refreshToken) {
+          localStorage.removeItem("auth_token");
+          window.location.href = "/login";
+          return Promise.reject(error);
+        }
+        const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+        const res = await fetch(`${API_BASE_URL}/auth/refresh-token`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refreshToken }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          localStorage.removeItem("auth_token");
+          localStorage.removeItem("refresh_token");
+          window.location.href = "/login";
+          return Promise.reject(error);
+        }
+        localStorage.setItem("auth_token", data.data.token);
+        if (data.data.refreshToken) {
+          localStorage.setItem("refresh_token", data.data.refreshToken);
+        }
+        apiClient.defaults.headers["Authorization"] = `Bearer ${data.data.token}`;
+        originalRequest.headers["Authorization"] = `Bearer ${data.data.token}`;
+        return apiClient(originalRequest);
+      } catch (err) {
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("refresh_token");
+        window.location.href = "/login";
+        return Promise.reject(err);
+      }
     }
     return Promise.reject(error);
   }
