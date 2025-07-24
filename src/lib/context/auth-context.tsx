@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { User } from "@/lib/types";
+import { api } from "../api/client";
 
 interface AuthContextType {
   user: User | null;
@@ -29,7 +30,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [refreshTokenValue, setRefreshTokenValue] = useState<string | null>(null);
+  const [refreshTokenValue, setRefreshTokenValue] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     // Check if user is logged in on app start
@@ -88,27 +91,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const refreshToken = async (): Promise<boolean> => {
     try {
-      const API_BASE_URL =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
       const refresh = localStorage.getItem("refresh_token");
       if (!refresh) throw new Error("No refresh token");
-      const response = await fetch(`${API_BASE_URL}/auth/refresh-token`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ refreshToken: refresh }),
-      });
-      const res = await response.json();
-      if (!response.ok) {
-        throw new Error(res.message || "Refresh token failed");
+
+      const response = await api.auth.refreshToken({ refreshToken: refresh });
+      if (!response.data.success) {
+        throw new Error(response.data.message || "Refresh token failed");
       }
-      localStorage.setItem("auth_token", res.data.token);
-      if (res.data.refreshToken) {
-        localStorage.setItem("refresh_token", res.data.refreshToken);
-        setRefreshTokenValue(res.data.refreshToken);
+      localStorage.setItem("auth_token", response.data.data.token);
+      if (response.data.data.refreshToken) {
+        localStorage.setItem("refresh_token", response.data.data.refreshToken);
+        setRefreshTokenValue(response.data.data.refreshToken);
       }
-      setAccessToken(res.data.token);
+      setAccessToken(response.data.data.token);
       return true;
     } catch (error) {
       logout();
@@ -166,13 +161,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("user_data");
-    setAccessToken(null);
-    setRefreshTokenValue(null);
-    setUser(null);
+  const logout = async () => {
+    try {
+      const refresh = localStorage.getItem("refresh_token");
+      if (!refresh) throw new Error("No refresh token");
+
+      const response = await api.auth.logout({ refreshToken: refresh });
+      if (!response.data.success) {
+        throw new Error(response.data.message || "Logout failed");
+      }
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("refresh_token");
+      localStorage.removeItem("user_data");
+      setAccessToken(null);
+      setRefreshTokenValue(null);
+      setUser(null);
+      return true;
+    } catch (error) {
+      return false;
+    }
   };
 
   const value: AuthContextType = {

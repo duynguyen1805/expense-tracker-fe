@@ -39,7 +39,8 @@ apiClient.interceptors.response.use(
           window.location.href = "/login";
           return Promise.reject(error);
         }
-        const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+        const API_BASE_URL =
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
         const res = await fetch(`${API_BASE_URL}/auth/refresh-token`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -56,7 +57,8 @@ apiClient.interceptors.response.use(
         if (data.data.refreshToken) {
           localStorage.setItem("refresh_token", data.data.refreshToken);
         }
-        apiClient.defaults.headers["Authorization"] = `Bearer ${data.data.token}`;
+        apiClient.defaults.headers["Authorization"] =
+          `Bearer ${data.data.token}`;
         originalRequest.headers["Authorization"] = `Bearer ${data.data.token}`;
         return apiClient(originalRequest);
       } catch (err) {
@@ -88,6 +90,11 @@ export const api = {
       apiClient.post<ApiResponse<any>>("/auth/verify-otp", data),
     resendOtp: (data: { email: string }) =>
       apiClient.post<ApiResponse<any>>("/auth/resend-otp", data),
+
+    refreshToken: (data: { refreshToken: string }) =>
+      apiClient.post<ApiResponse<any>>("/auth/refresh-token", data),
+    logout: (data: { refreshToken: string }) =>
+      apiClient.post<ApiResponse<any>>("/auth/logout", data),
     generate2FA: () => apiClient.get<ApiResponse<any>>("/auth/2fa/generate"),
     get2FAStatus: () => apiClient.post<ApiResponse<any>>("/auth/2fa/status"),
     enable2FA: (data: { code: string }) =>
