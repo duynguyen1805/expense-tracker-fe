@@ -82,8 +82,12 @@ export const api = {
 
   // Auth endpoints
   auth: {
-    register: (data: { email: string; password: string; name: string }) =>
-      apiClient.post<ApiResponse<any>>("/auth/register", data),
+    register: (data: {
+      email: string;
+      password: string;
+      firstName: string;
+      lastName: string;
+    }) => apiClient.post<ApiResponse<any>>("/auth/register", data),
     // login: (data: { email: string; password: string }) =>
     //   apiClient.post<ApiResponse<any>>("/auth/login-account", data),
     verifyOtp: (data: { email: string; otp: string }) =>
