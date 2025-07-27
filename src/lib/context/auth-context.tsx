@@ -123,7 +123,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     lastName: string
   ) => {
     try {
-      const response = await fetch("/api/auth/register", {
+      const API_BASE_URL =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+      const response = await fetch(`${API_BASE_URL}/auth/signup-account`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -146,12 +148,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const verifyOtp = async (email: string, otp: string) => {
     try {
-      const response = await fetch("/api/auth/verify-otp", {
+      const API_BASE_URL =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+      const response = await fetch(`${API_BASE_URL}/auth/verify-registration`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, otp }),
+        body: JSON.stringify({ email, code: otp }),
       });
 
       const data = await response.json();
