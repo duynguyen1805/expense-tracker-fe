@@ -84,15 +84,40 @@ export interface Budget {
 }
 
 export interface FinancialGoal {
-  id: string;
-  name: string;
+  goalId: number;
+  userId: number;
+  goalName: string;
   targetAmount: number;
-  currentAmount: number;
-  targetDate: Date;
-  description: string;
-  userId: string;
+  deadline: Date;
+  autoDeduct: boolean;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface Notification {
+  notificationId: number;
+  userId: number;
+  type: "EMAIL" | "PUSH" | "IN_APP";
+  title: string;
+  message: string;
+  status: "PENDING" | "SENT" | "FAILED" | "READ";
+  relatedGoalId?: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CreateFinancialGoalRequest {
+  goalName: string;
+  targetAmount: number;
+  deadline: string;
+  autoDeduct: boolean;
+}
+
+export interface UpdateFinancialGoalRequest {
+  goalName?: string;
+  targetAmount?: number;
+  deadline?: string;
+  autoDeduct?: boolean;
 }
 
 export interface AuthResponse {

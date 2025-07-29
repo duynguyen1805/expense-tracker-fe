@@ -158,12 +158,30 @@ export const api = {
   // Financial Goals
   goals: {
     getAll: () => apiClient.get<ApiResponse<any[]>>("/financial-goals/get-all"),
+    getUpcoming: (days?: number) => 
+      apiClient.get<ApiResponse<any[]>>(`/financial-goals/upcoming?days=${days || 30}`),
+    getById: (id: number) => 
+      apiClient.get<ApiResponse<any>>(`/financial-goals/${id}`),
     create: (data: any) =>
       apiClient.post<ApiResponse<any>>("/financial-goals/create", data),
-    update: (id: string, data: any) =>
-      apiClient.post<ApiResponse<any>>(`/financial-goals//update/${id}`, data),
-    delete: (id: string) =>
-      apiClient.delete<ApiResponse<any>>(`/financial-goals/delete/${id}`),
+    update: (id: number, data: any) =>
+      apiClient.patch<ApiResponse<any>>(`/financial-goals/${id}`, data),
+    delete: (id: number) =>
+      apiClient.delete<ApiResponse<any>>(`/financial-goals/${id}`),
+  },
+
+  // Notifications
+  notifications: {
+    getAll: (limit?: number) => 
+      apiClient.get<ApiResponse<any[]>>(`/notifications?limit=${limit || 50}`),
+    getUnreadCount: () => 
+      apiClient.get<ApiResponse<number>>("/notifications/unread-count"),
+    markAsRead: (id: number) => 
+      apiClient.patch<ApiResponse<any>>(`/notifications/${id}/read`),
+    delete: (id: number) => 
+      apiClient.delete<ApiResponse<any>>(`/notifications/${id}`),
+    send: (data: any) => 
+      apiClient.post<ApiResponse<any>>("/notifications/send", data),
   },
 
   // Dashboard

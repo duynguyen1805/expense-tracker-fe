@@ -14,6 +14,7 @@ import { DashboardData, DashboardTransaction } from "@/lib/types";
 import { toast } from "@/hooks/use-toast";
 import { api } from "@/lib/api/client";
 import { formatCurrencyVND } from "@/lib/utils";
+import GoalsSummary from "@/components/dashboard/goals-summary";
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardData | null>(null);
@@ -129,8 +130,8 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Top Categories */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Top Categories and Goals */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Top Expense Categories</CardTitle>
@@ -221,6 +222,8 @@ export default function DashboardPage() {
             </div>
           </CardContent>
         </Card>
+
+        <GoalsSummary />
       </div>
 
       {/* Quick Actions */}

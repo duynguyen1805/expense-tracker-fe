@@ -19,73 +19,67 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Target, Plus, Edit, Trash2, Calendar } from "lucide-react";
-import { FinancialGoal } from "@/lib/types";
+import { Switch } from "@/components/ui/switch";
+import { Target, Plus, Edit, Trash2, Calendar, AlertTriangle, CheckCircle } from "lucide-react";
+import { FinancialGoal, CreateFinancialGoalRequest, UpdateFinancialGoalRequest } from "@/lib/types";
+import { api } from "@/lib/api/client";
 import { useToast } from "@/hooks/use-toast";
+import Notifications from "@/components/dashboard/notifications";
 
 export default function GoalsPage() {
   const [goals, setGoals] = useState<FinancialGoal[]>([]);
+  const [upcomingGoals, setUpcomingGoals] = useState<FinancialGoal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<FinancialGoal | null>(null);
+  const [showNotifications, setShowNotifications] = useState(false);
   const { toast } = useToast();
 
   // Form state
-  const [name, setName] = useState("");
+  const [goalName, setGoalName] = useState("");
   const [targetAmount, setTargetAmount] = useState("");
-  const [currentAmount, setCurrentAmount] = useState("");
-  const [targetDate, setTargetDate] = useState("");
-  const [description, setDescription] = useState("");
+  const [deadline, setDeadline] = useState("");
+  const [autoDeduct, setAutoDeduct] = useState(false);
 
   useEffect(() => {
-    // Mock data - replace with API calls
-    const mockGoals: FinancialGoal[] = [
-      {
-        id: "1",
-        name: "Emergency Fund",
-        targetAmount: 10000,
-        currentAmount: 6500,
-        targetDate: new Date("2024-12-31"),
-        description: "Save 6 months of living expenses",
-        userId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: "2",
-        name: "Vacation Fund",
-        targetAmount: 5000,
-        currentAmount: 2000,
-        targetDate: new Date("2024-06-30"),
-        description: "Save for summer vacation",
-        userId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: "3",
-        name: "New Car",
-        targetAmount: 25000,
-        currentAmount: 8000,
-        targetDate: new Date("2025-03-31"),
-        description: "Down payment for a new car",
-        userId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ];
-
-    setTimeout(() => {
-      setGoals(mockGoals);
-      setIsLoading(false);
-    }, 1000);
+    loadGoals();
+    loadUpcomingGoals();
   }, []);
+
+  const loadGoals = async () => {
+    try {
+      setIsLoading(true);
+      const response = await api.goals.getAll();
+      if (response.data.success) {
+        setGoals(response.data.data || []);
+      }
+    } catch (error) {
+      console.error("Error loading goals:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load financial goals",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadUpcomingGoals = async () => {
+    try {
+      const response = await api.goals.getUpcoming(30);
+      if (response.data.success) {
+        setUpcomingGoals(response.data.data || []);
+      }
+    } catch (error) {
+      console.error("Error loading upcoming goals:", error);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name || !targetAmount || !currentAmount || !targetDate) {
+    if (!goalName || !targetAmount || !deadline) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -94,93 +88,137 @@ export default function GoalsPage() {
       return;
     }
 
-    const newGoal: FinancialGoal = {
-      id: editingGoal?.id || Date.now().toString(),
-      name,
-      targetAmount: parseFloat(targetAmount),
-      currentAmount: parseFloat(currentAmount),
-      targetDate: new Date(targetDate),
-      description,
-      userId: "1",
-      createdAt: editingGoal?.createdAt || new Date(),
-      updatedAt: new Date(),
-    };
+    try {
+      if (editingGoal) {
+        const updateData: UpdateFinancialGoalRequest = {
+          goalName,
+          targetAmount: parseFloat(targetAmount),
+          deadline,
+          autoDeduct,
+        };
 
-    if (editingGoal) {
-      setGoals(
-        goals.map((goal) => (goal.id === editingGoal.id ? newGoal : goal))
-      );
+        const response = await api.goals.update(editingGoal.goalId, updateData);
+        if (response.data.success) {
+          toast({
+            title: "Success",
+            description: "Goal updated successfully!",
+          });
+          loadGoals();
+          loadUpcomingGoals();
+        }
+      } else {
+        const createData: CreateFinancialGoalRequest = {
+          goalName,
+          targetAmount: parseFloat(targetAmount),
+          deadline,
+          autoDeduct,
+        };
+
+        const response = await api.goals.create(createData);
+        if (response.data.success) {
+          toast({
+            title: "Success",
+            description: "Goal created successfully!",
+          });
+          loadGoals();
+          loadUpcomingGoals();
+        }
+      }
+
+      handleCloseDialog();
+    } catch (error) {
+      console.error("Error saving goal:", error);
       toast({
-        title: "Success",
-        description: "Goal updated successfully!",
-      });
-    } else {
-      setGoals([...goals, newGoal]);
-      toast({
-        title: "Success",
-        description: "Goal created successfully!",
+        title: "Error",
+        description: "Failed to save goal",
+        variant: "destructive",
       });
     }
-
-    handleCloseDialog();
   };
 
   const handleEdit = (goal: FinancialGoal) => {
     setEditingGoal(goal);
-    setName(goal.name);
+    setGoalName(goal.goalName);
     setTargetAmount(goal.targetAmount.toString());
-    setCurrentAmount(goal.currentAmount.toString());
-    setTargetDate(goal.targetDate.toISOString().split("T")[0]);
-    setDescription(goal.description);
+    setDeadline(new Date(goal.deadline).toISOString().split("T")[0]);
+    setAutoDeduct(goal.autoDeduct);
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    setGoals(goals.filter((goal) => goal.id !== id));
-    toast({
-      title: "Success",
-      description: "Goal deleted successfully!",
-    });
+  const handleDelete = async (goalId: number) => {
+    try {
+      const response = await api.goals.delete(goalId);
+      if (response.data.success) {
+        setGoals(goals.filter((goal) => goal.goalId !== goalId));
+        setUpcomingGoals(upcomingGoals.filter((goal) => goal.goalId !== goalId));
+        toast({
+          title: "Success",
+          description: "Goal deleted successfully!",
+        });
+      }
+    } catch (error) {
+      console.error("Error deleting goal:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete goal",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setEditingGoal(null);
-    setName("");
+    setGoalName("");
     setTargetAmount("");
-    setCurrentAmount("");
-    setTargetDate("");
-    setDescription("");
-  };
-
-  const getProgressPercentage = (goal: FinancialGoal) => {
-    return Math.min((goal.currentAmount / goal.targetAmount) * 100, 100);
+    setDeadline("");
+    setAutoDeduct(false);
   };
 
   const getDaysRemaining = (goal: FinancialGoal) => {
     const today = new Date();
-    const targetDate = new Date(goal.targetDate);
-    const diffTime = targetDate.getTime() - today.getTime();
+    const deadline = new Date(goal.deadline);
+    const diffTime = deadline.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
   };
 
-  const getProgressColor = (goal: FinancialGoal) => {
-    const percentage = getProgressPercentage(goal);
-    if (percentage >= 100) return "bg-green-500";
-    if (percentage >= 75) return "bg-blue-500";
-    if (percentage >= 50) return "bg-yellow-500";
-    return "bg-gray-500";
+  const getUrgencyLevel = (goal: FinancialGoal) => {
+    const daysRemaining = getDaysRemaining(goal);
+    if (daysRemaining < 0) return "overdue";
+    if (daysRemaining <= 1) return "critical";
+    if (daysRemaining <= 7) return "urgent";
+    if (daysRemaining <= 14) return "warning";
+    return "normal";
   };
 
-  const getStatusText = (goal: FinancialGoal) => {
-    const percentage = getProgressPercentage(goal);
-    const daysRemaining = getDaysRemaining(goal);
+  const getUrgencyColor = (urgency: string) => {
+    switch (urgency) {
+      case "overdue":
+        return "border-red-500 bg-red-50 dark:bg-red-950";
+      case "critical":
+        return "border-red-400 bg-red-50 dark:bg-red-950";
+      case "urgent":
+        return "border-orange-400 bg-orange-50 dark:bg-orange-950";
+      case "warning":
+        return "border-yellow-400 bg-yellow-50 dark:bg-yellow-950";
+      default:
+        return "";
+    }
+  };
 
-    if (percentage >= 100) return "Completed!";
-    if (daysRemaining < 0) return "Overdue";
-    if (daysRemaining <= 30) return "Due soon";
-    return "In progress";
+  const getUrgencyIcon = (urgency: string) => {
+    switch (urgency) {
+      case "overdue":
+      case "critical":
+        return <AlertTriangle className="h-5 w-5 text-red-500" />;
+      case "urgent":
+        return <AlertTriangle className="h-5 w-5 text-orange-500" />;
+      case "warning":
+        return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
+      default:
+        return <Target className="h-5 w-5 text-muted-foreground" />;
+    }
   };
 
   if (isLoading) {
@@ -200,37 +238,43 @@ export default function GoalsPage() {
             Set and track your financial objectives
           </p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Goal
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                {editingGoal ? "Edit Goal" : "Add Goal"}
-              </DialogTitle>
-              <DialogDescription>
-                {editingGoal
-                  ? "Update your financial goal"
-                  : "Set a new financial target"}
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Goal Name</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="Enter goal name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+        <div className="flex space-x-2">
+          <Button
+            variant="outline"
+            onClick={() => setShowNotifications(!showNotifications)}
+          >
+            Notifications
+          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Goal
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>
+                  {editingGoal ? "Edit Goal" : "Add Goal"}
+                </DialogTitle>
+                <DialogDescription>
+                  {editingGoal
+                    ? "Update your financial goal"
+                    : "Set a new financial target"}
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="goalName">Goal Name</Label>
+                  <Input
+                    id="goalName"
+                    type="text"
+                    placeholder="Enter goal name"
+                    value={goalName}
+                    onChange={(e) => setGoalName(e.target.value)}
+                    required
+                  />
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="targetAmount">Target Amount</Label>
                   <Input
@@ -244,145 +288,181 @@ export default function GoalsPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="currentAmount">Current Amount</Label>
+                  <Label htmlFor="deadline">Deadline</Label>
                   <Input
-                    id="currentAmount"
-                    type="number"
-                    step="0.01"
-                    placeholder="Enter current amount"
-                    value={currentAmount}
-                    onChange={(e) => setCurrentAmount(e.target.value)}
+                    id="deadline"
+                    type="date"
+                    value={deadline}
+                    onChange={(e) => setDeadline(e.target.value)}
                     required
                   />
                 </div>
-              </div>
-              <div className="space-y-2 w-fit">
-                <Label htmlFor="targetDate">Target Date</Label>
-                <Input
-                  id="targetDate"
-                  type="date"
-                  value={targetDate}
-                  onChange={(e) => setTargetDate(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description">Description (Optional)</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Enter goal description"
-                  value={description}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                    setDescription(e.target.value)
-                  }
-                  rows={3}
-                />
-              </div>
-              <div className="flex justify-end space-x-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleCloseDialog}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  {editingGoal ? "Update" : "Add"} Goal
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="autoDeduct"
+                    checked={autoDeduct}
+                    onCheckedChange={setAutoDeduct}
+                  />
+                  <Label htmlFor="autoDeduct">Auto-deduct from income</Label>
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleCloseDialog}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit">
+                    {editingGoal ? "Update" : "Add"} Goal
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
-      {/* Goals Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {goals.map((goal) => {
-          const progressPercentage = getProgressPercentage(goal);
-          const progressColor = getProgressColor(goal);
-          const daysRemaining = getDaysRemaining(goal);
-          const statusText = getStatusText(goal);
+      {/* Notifications Section */}
+      {showNotifications && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Notifications</CardTitle>
+            <CardDescription>
+              Stay updated with your financial goals
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Notifications limit={10} showHeader={false} />
+          </CardContent>
+        </Card>
+      )}
 
-          return (
-            <Card key={goal.id} className="relative">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-lg">{goal.name}</CardTitle>
-                    <CardDescription>{goal.description}</CardDescription>
-                  </div>
-                  <Target className="h-5 w-5 text-muted-foreground" />
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Current: ${goal.currentAmount.toLocaleString()}</span>
-                    <span>Target: ${goal.targetAmount.toLocaleString()}</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-                    <div
-                      className={`h-2 rounded-full ${progressColor}`}
-                      style={{ width: `${Math.min(progressPercentage, 100)}%` }}
-                    ></div>
-                  </div>
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>{progressPercentage.toFixed(1)}% complete</span>
-                    <span className={daysRemaining < 0 ? "text-red-500" : ""}>
-                      {Math.abs(daysRemaining)} days{" "}
-                      {daysRemaining < 0 ? "overdue" : "remaining"}
-                    </span>
-                  </div>
-                </div>
+      {/* Upcoming Goals Section */}
+      {upcomingGoals.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Upcoming Deadlines</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {upcomingGoals.map((goal) => {
+              const urgency = getUrgencyLevel(goal);
+              const urgencyColor = getUrgencyColor(urgency);
+              const urgencyIcon = getUrgencyIcon(urgency);
+              const daysRemaining = getDaysRemaining(goal);
 
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span>
-                      Remaining: $
-                      {(
-                        goal.targetAmount - goal.currentAmount
-                      ).toLocaleString()}
-                    </span>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        statusText === "Completed!"
-                          ? "bg-green-100 text-green-800"
-                          : statusText === "Overdue"
-                            ? "bg-red-100 text-red-800"
-                            : statusText === "Due soon"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-blue-100 text-blue-800"
-                      }`}
+              return (
+                <Card key={goal.goalId} className={`${urgencyColor}`}>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-lg">{goal.goalName}</CardTitle>
+                        <CardDescription>
+                          Target: ${goal.targetAmount.toLocaleString()}
+                        </CardDescription>
+                      </div>
+                      {urgencyIcon}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span>Days remaining:</span>
+                        <span className={`font-semibold ${
+                          urgency === "overdue" ? "text-red-600" :
+                          urgency === "critical" ? "text-red-500" :
+                          urgency === "urgent" ? "text-orange-500" :
+                          "text-yellow-500"
+                        }`}>
+                          {Math.abs(daysRemaining)} {daysRemaining < 0 ? "overdue" : "days"}
+                        </span>
+                      </div>
+                      <div className="flex items-center text-xs text-muted-foreground">
+                        <Calendar className="h-3 w-3 mr-1" />
+                        Deadline: {new Date(goal.deadline).toLocaleDateString()}
+                      </div>
+                      {goal.autoDeduct && (
+                        <div className="flex items-center text-xs text-green-600">
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          Auto-deduct enabled
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* All Goals Grid */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold">All Financial Goals</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {goals.map((goal) => {
+            const urgency = getUrgencyLevel(goal);
+            const urgencyColor = getUrgencyColor(urgency);
+            const urgencyIcon = getUrgencyIcon(urgency);
+            const daysRemaining = getDaysRemaining(goal);
+
+            return (
+              <Card key={goal.goalId} className={`relative ${urgencyColor}`}>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-lg">{goal.goalName}</CardTitle>
+                      <CardDescription>
+                        Target: ${goal.targetAmount.toLocaleString()}
+                      </CardDescription>
+                    </div>
+                    {urgencyIcon}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span>Days remaining:</span>
+                      <span className={`font-semibold ${
+                        urgency === "overdue" ? "text-red-600" :
+                        urgency === "critical" ? "text-red-500" :
+                        urgency === "urgent" ? "text-orange-500" :
+                        "text-yellow-500"
+                      }`}>
+                        {Math.abs(daysRemaining)} {daysRemaining < 0 ? "overdue" : "days"}
+                      </span>
+                    </div>
+                    <div className="flex items-center text-xs text-muted-foreground">
+                      <Calendar className="h-3 w-3 mr-1" />
+                      Deadline: {new Date(goal.deadline).toLocaleDateString()}
+                    </div>
+                    {goal.autoDeduct && (
+                      <div className="flex items-center text-xs text-green-600">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Auto-deduct enabled
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex justify-end space-x-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEdit(goal)}
                     >
-                      {statusText}
-                    </span>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDelete(goal.goalId)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
-                  <div className="flex items-center text-xs text-muted-foreground">
-                    <Calendar className="h-3 w-3 mr-1" />
-                    Target: {new Date(goal.targetDate).toLocaleDateString()}
-                  </div>
-                </div>
-
-                <div className="flex justify-end space-x-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleEdit(goal)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDelete(goal.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
       </div>
 
       {goals.length === 0 && (

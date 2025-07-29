@@ -14,9 +14,11 @@ import {
   Menu,
   X,
   Code,
+  Bell,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import NotificationBadge from "@/components/dashboard/notification-badge";
 
 export default function DashboardLayout({
   children,
@@ -56,6 +58,7 @@ export default function DashboardLayout({
     { name: "Expenses", href: "/dashboard/expenses", icon: TrendingDown },
     { name: "Budgets", href: "/dashboard/budgets", icon: Target },
     { name: "Goals", href: "/dashboard/goals", icon: Target },
+    { name: "Notifications", href: "/dashboard/notifications", icon: Bell },
     { name: "Settings", href: "/dashboard/settings", icon: Settings },
     { name: "API Examples", href: "/dashboard/example-api", icon: Code },
   ];
@@ -176,6 +179,9 @@ export default function DashboardLayout({
           <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
             <h1 className="text-lg font-semibold">Expense Tracker</h1>
           </div>
+          <Link href="/dashboard/notifications">
+            <NotificationBadge />
+          </Link>
         </div>
 
         <main className="py-6">
