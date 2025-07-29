@@ -170,3 +170,33 @@ export interface DashboardData {
   topCategories: DashboardTopCategory[];
   recentTransactions: DashboardTransaction[];
 }
+
+export interface NotificationPreferences {
+  id: number;
+  userId: number;
+  email: boolean;
+  push: boolean;
+  budgetAlerts: boolean;
+  goalReminders: boolean;
+  expenseAlerts: boolean;
+  incomeAlerts: boolean;
+  weeklyReports: boolean;
+  monthlyReports: boolean;
+  achievementCelebrations: boolean;
+  systemUpdates: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface UpdateNotificationPreferencesRequest {
+  email?: boolean;
+  push?: boolean;
+  budgetAlerts?: boolean;
+  goalReminders?: boolean;
+  expenseAlerts?: boolean;
+  incomeAlerts?: boolean;
+  weeklyReports?: boolean;
+  monthlyReports?: boolean;
+  achievementCelebrations?: boolean;
+  systemUpdates?: boolean;
+}

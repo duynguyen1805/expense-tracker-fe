@@ -19,6 +19,7 @@ import { User, Bell, Shield, Palette, Database } from "lucide-react";
 import { useTheme } from "@/lib/context/theme-context";
 import { useCurrency } from "@/lib/context/currency-context";
 import { api } from "@/lib/api/client";
+import NotificationPreferencesComponent from "@/components/dashboard/notification-preferences";
 
 export default function SettingsPage() {
   const { user, logout } = useAuth();
@@ -319,83 +320,7 @@ export default function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="notifications" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bell className="h-5 w-5" />
-                Notification Preferences
-              </CardTitle>
-              <CardDescription>
-                Choose how you want to be notified
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Email Notifications</p>
-                    <p className="text-sm text-muted-foreground">
-                      Receive notifications via email
-                    </p>
-                  </div>
-                  <Switch
-                    checked={notifications.email}
-                    onCheckedChange={(checked) =>
-                      setNotifications({ ...notifications, email: checked })
-                    }
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Push Notifications</p>
-                    <p className="text-sm text-muted-foreground">
-                      Receive push notifications in browser
-                    </p>
-                  </div>
-                  <Switch
-                    checked={notifications.push}
-                    onCheckedChange={(checked) =>
-                      setNotifications({ ...notifications, push: checked })
-                    }
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Budget Alerts</p>
-                    <p className="text-sm text-muted-foreground">
-                      Get notified when approaching budget limits
-                    </p>
-                  </div>
-                  <Switch
-                    checked={notifications.budgetAlerts}
-                    onCheckedChange={(checked) =>
-                      setNotifications({
-                        ...notifications,
-                        budgetAlerts: checked,
-                      })
-                    }
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Goal Reminders</p>
-                    <p className="text-sm text-muted-foreground">
-                      Get reminded about your financial goals
-                    </p>
-                  </div>
-                  <Switch
-                    checked={notifications.goalReminders}
-                    onCheckedChange={(checked) =>
-                      setNotifications({
-                        ...notifications,
-                        goalReminders: checked,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <NotificationPreferencesComponent />
         </TabsContent>
 
         <TabsContent value="appearance" className="space-y-6">

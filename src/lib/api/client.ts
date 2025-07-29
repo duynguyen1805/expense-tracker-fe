@@ -78,6 +78,12 @@ export const api = {
     getProfile: (id: string) => apiClient.get<ApiResponse<any>>(`/user/${id}`),
     updateProfile: (data: any) =>
       apiClient.post<ApiResponse<any>>("/user/update/profile", data),
+    getNotificationPreferences: () =>
+      apiClient.get<ApiResponse<any>>("/user/notification-preferences"),
+    updateNotificationPreferences: (data: any) =>
+      apiClient.post<ApiResponse<any>>("/user/notification-preferences", data),
+    resetNotificationPreferences: () =>
+      apiClient.post<ApiResponse<any>>("/user/notification-preferences/reset"),
   },
 
   // Auth endpoints
