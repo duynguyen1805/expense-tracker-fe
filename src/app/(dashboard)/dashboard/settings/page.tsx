@@ -40,7 +40,9 @@ export default function SettingsPage() {
   const [otpCode, setOtpCode] = useState("");
   const [emailOtp, setEmailOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [step, setStep] = useState<"init" | "verify" | "enabled" | "disable">("init");
+  const [step, setStep] = useState<"init" | "verify" | "enabled" | "disable">(
+    "init"
+  );
   const [twoFAStatus, setTwoFAStatus] = useState({
     isTwoFactorAuthEnabled: user?.isTwoFactorAuthEnabled,
     timeActiveTwoFactorAuth: user?.timeActiveTwoFactorAuth,
@@ -88,7 +90,11 @@ export default function SettingsPage() {
         if (statusRes.data.success) setTwoFAStatus(statusRes.data.data);
       }
     } catch (e) {
-      toast({ title: "Error", description: "Invalid OTP", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Invalid OTP",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -109,7 +115,11 @@ export default function SettingsPage() {
         if (statusRes.data.success) setTwoFAStatus(statusRes.data.data);
       }
     } catch (e) {
-      toast({ title: "Error", description: "Failed to disable 2FA", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Failed to disable 2FA",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -121,7 +131,11 @@ export default function SettingsPage() {
       await api.auth.sendDisable2FAOtp();
       toast({ title: "OTP sent", description: "Check your email for the OTP" });
     } catch (e) {
-      toast({ title: "Error", description: "Failed to send OTP", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Failed to send OTP",
+        variant: "destructive",
+      });
     }
   };
 
@@ -212,29 +226,47 @@ export default function SettingsPage() {
                         2FA is enabled on your account.
                       </p>
                     </div>
-                    <Button variant="outline" onClick={() => setStep("disable")}>Disable 2FA</Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setStep("disable")}
+                    >
+                      Disable 2FA
+                    </Button>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">
-                      2FA has been active since: {twoFAStatus.timeActiveTwoFactorAuth ? new Date(twoFAStatus.timeActiveTwoFactorAuth).toLocaleString() : "-"}
+                      2FA has been active since:{" "}
+                      {twoFAStatus.timeActiveTwoFactorAuth
+                        ? new Date(
+                            twoFAStatus.timeActiveTwoFactorAuth
+                          ).toLocaleString()
+                        : "-"}
                     </p>
                   </div>
                   {step === "disable" && (
-                    <div className="space-y-2">
-                      <Input
-                        placeholder="Enter OTP from Authenticator app"
-                        value={otpCode}
-                        onChange={e => setOtpCode(e.target.value)}
-                      />
-                      <Button onClick={handleSendDisableOtp} variant="secondary" type="button">
+                    <div className="space-y-4">
+                      <Button
+                        onClick={handleSendDisableOtp}
+                        variant="secondary"
+                        type="button"
+                      >
                         Send OTP to Email
                       </Button>
                       <Input
                         placeholder="Enter OTP from Email"
                         value={emailOtp}
-                        onChange={e => setEmailOtp(e.target.value)}
+                        onChange={(e) => setEmailOtp(e.target.value)}
                       />
-                      <Button onClick={handleDisable2FA} disabled={isLoading} type="button">
+                      <Input
+                        placeholder="Enter OTP from Authenticator app"
+                        value={otpCode}
+                        onChange={(e) => setOtpCode(e.target.value)}
+                      />
+                      <Button
+                        onClick={handleDisable2FA}
+                        disabled={isLoading}
+                        type="button"
+                      >
                         Confirm Disable 2FA
                       </Button>
                     </div>
@@ -249,14 +281,19 @@ export default function SettingsPage() {
                         2FA is not enabled. Enable it for extra security.
                       </p>
                     </div>
-                    <Button onClick={handleGenerate2FA} disabled={isLoading} type="button">
+                    <Button
+                      onClick={handleGenerate2FA}
+                      disabled={isLoading}
+                      type="button"
+                    >
                       Enable 2FA
                     </Button>
                   </div>
                   {step === "verify" && (
                     <div className="space-y-2">
                       <p className="text-sm text-muted-foreground">
-                        Scan the QR code below with your authenticator app or enter the secret key manually.
+                        Scan the QR code below with your authenticator app or
+                        enter the secret key manually.
                       </p>
                       {qr && (
                         <div className="flex flex-col items-center gap-2">
@@ -269,16 +306,22 @@ export default function SettingsPage() {
                             alt="2FA QR"
                           />
                           <div className="bg-gray-100 dark:bg-gray-800 rounded p-4 text-center">
-                            <span className="font-mono text-xs break-all">{secret}</span>
+                            <span className="font-mono text-xs break-all">
+                              {secret}
+                            </span>
                           </div>
                         </div>
                       )}
                       <Input
                         placeholder="Enter OTP from Authenticator app"
                         value={otpCode}
-                        onChange={e => setOtpCode(e.target.value)}
+                        onChange={(e) => setOtpCode(e.target.value)}
                       />
-                      <Button onClick={handleEnable2FA} disabled={isLoading} type="button">
+                      <Button
+                        onClick={handleEnable2FA}
+                        disabled={isLoading}
+                        type="button"
+                      >
                         Confirm & Enable 2FA
                       </Button>
                     </div>
