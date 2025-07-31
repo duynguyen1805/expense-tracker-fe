@@ -123,7 +123,14 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {Math.round((stats.monthlyBalance / stats.monthlyIncome) * 100)}%
+              {isNaN(
+                Math.round((stats.monthlyBalance / stats.monthlyIncome) * 100)
+              )
+                ? 0
+                : Math.round(
+                    (stats.monthlyBalance / stats.monthlyIncome) * 100
+                  )}
+              %
             </div>
             <p className="text-xs text-muted-foreground">of income saved</p>
           </CardContent>
@@ -141,6 +148,11 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
+              {stats.topCategories.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  No data available
+                </p>
+              )}
               {stats.topCategories.map((item, index) => (
                 <div
                   key={item.category.categoryId}
@@ -183,6 +195,11 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
+              {stats.recentTransactions.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  No data available
+                </p>
+              )}
               {stats.recentTransactions.map(
                 (transaction: DashboardTransaction) => (
                   <div
