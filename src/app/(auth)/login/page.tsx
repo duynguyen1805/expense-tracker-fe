@@ -1,38 +1,45 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useAuth } from '@/lib/context/auth-context';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useAuth } from "@/lib/context/auth-context";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import GoogleSignIn from "@/components/auth/google-signIn";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { login, user } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
   const [show2FA, setShow2FA] = useState(false);
-  const [twoFaCode, setTwoFaCode] = useState('');
-  const [loginError, setLoginError] = useState('');
+  const [twoFaCode, setTwoFaCode] = useState("");
+  const [loginError, setLoginError] = useState("");
 
   useEffect(() => {
     if (user) {
-      router.push('/dashboard');
+      router.push("/dashboard");
     }
   }, [user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setLoginError('');
+    setLoginError("");
 
     try {
       // Nếu show2FA, gửi thêm twoFaCode
@@ -42,22 +49,25 @@ export default function LoginPage() {
         await login(email, password);
       }
       toast({
-        title: 'Success',
-        description: 'Logged in successfully!',
+        title: "Success",
+        description: "Logged in successfully!",
       });
-      router.push('/dashboard');
+      router.push("/dashboard");
     } catch (error: any) {
       // Nếu lỗi là REQUIRED_TWO_FA, hiển thị input 2FA
-      if (error?.code === 'REQUIRED_TWO_FA' || error?.message === 'REQUIRED_TWO_FA') {
+      if (
+        error?.code === "REQUIRED_TWO_FA" ||
+        error?.message === "REQUIRED_TWO_FA"
+      ) {
         setShow2FA(true);
-        setLoginError('Please enter your 2FA code.');
+        setLoginError("Please enter your 2FA code.");
       } else {
         toast({
-          title: 'Error',
-          description: error instanceof Error ? error.message : 'Login failed',
-          variant: 'destructive',
+          title: "Error",
+          description: error instanceof Error ? error.message : "Login failed",
+          variant: "destructive",
         });
-        setLoginError(error?.message || 'Login failed');
+        setLoginError(error?.message || "Login failed");
       }
     } finally {
       setIsLoading(false);
@@ -98,7 +108,7 @@ export default function LoginPage() {
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -131,17 +141,20 @@ export default function LoginPage() {
               <div className="text-red-500 text-sm">{loginError}</div>
             )}
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Signing in...' : 'Sign in'}
+              {isLoading ? "Signing in..." : "Sign in"}
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{' '}
+            Don&apos;t have an account?{" "}
             <Link href="/register" className="text-primary hover:underline">
               Sign up
             </Link>
+          </div>
+          <div className="mt-6">
+            <GoogleSignIn />
           </div>
         </CardContent>
       </Card>
     </div>
   );
-} 
+}

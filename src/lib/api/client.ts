@@ -113,6 +113,10 @@ export const api = {
       apiClient.post<ApiResponse<any>>("/auth/2fa/disable", data),
     sendDisable2FAOtp: () =>
       apiClient.post<ApiResponse<any>>("/auth/2fa/send-disable-otp"),
+    signInWithGoogle: (data: { idToken: string }) =>
+      apiClient.post<ApiResponse<any>>("/auth/firebase/login", data),
+    verifyFirebaseToken: (data: { idToken: string }) =>
+      apiClient.post<ApiResponse<any>>("/auth/firebase/verify", data),
   },
 
   // Categories
@@ -164,9 +168,11 @@ export const api = {
   // Financial Goals
   goals: {
     getAll: () => apiClient.get<ApiResponse<any[]>>("/financial-goals/get-all"),
-    getUpcoming: (days?: number) => 
-      apiClient.get<ApiResponse<any[]>>(`/financial-goals/upcoming?days=${days || 30}`),
-    getById: (id: number) => 
+    getUpcoming: (days?: number) =>
+      apiClient.get<ApiResponse<any[]>>(
+        `/financial-goals/upcoming?days=${days || 30}`
+      ),
+    getById: (id: number) =>
       apiClient.get<ApiResponse<any>>(`/financial-goals/${id}`),
     create: (data: any) =>
       apiClient.post<ApiResponse<any>>("/financial-goals/create", data),
@@ -178,15 +184,15 @@ export const api = {
 
   // Notifications
   notifications: {
-    getAll: (limit?: number) => 
+    getAll: (limit?: number) =>
       apiClient.get<ApiResponse<any[]>>(`/notifications?limit=${limit || 50}`),
-    getUnreadCount: () => 
+    getUnreadCount: () =>
       apiClient.get<ApiResponse<number>>("/notifications/unread-count"),
-    markAsRead: (id: number) => 
+    markAsRead: (id: number) =>
       apiClient.patch<ApiResponse<any>>(`/notifications/${id}/read`),
-    delete: (id: number) => 
+    delete: (id: number) =>
       apiClient.delete<ApiResponse<any>>(`/notifications/${id}`),
-    send: (data: any) => 
+    send: (data: any) =>
       apiClient.post<ApiResponse<any>>("/notifications/send", data),
   },
 
