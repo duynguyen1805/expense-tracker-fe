@@ -8,6 +8,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (email: string, password: string, twoFaCode?: string) => Promise<void>;
+  signInWithGoogle: (idToken: string) => Promise<void>;
   register: (
     email: string,
     password: string,
@@ -89,6 +90,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setAccessToken(res.data.token);
       setRefreshTokenValue(res.data.refreshToken);
       setUser(res.data.user);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const signInWithGoogle = async (idToken: string) => {
+    try {
+      // const API_BASE_URL =
+      //   process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
+      const response = await api.auth.signInWithGoogle({ idToken });
+
+      const res = await response.data.data;
+
+      if (!response.data.success) {
+        if (res.data.code) throw res;
+        throw new Error(res.message || "Login failed");
+      }
+
+      localStorage.setItem("auth_token", res.token);
+      localStorage.setItem("refresh_token", res.refreshToken);
+      localStorage.setItem("user_data", JSON.stringify(res.user));
+      setAccessToken(res.token);
+      setRefreshTokenValue(res.refreshToken);
+      setUser(res.user);
     } catch (error) {
       throw error;
     }
@@ -200,6 +226,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     user,
     isLoading,
     login,
+    signInWithGoogle,
     register,
     logout,
     verifyOtp,

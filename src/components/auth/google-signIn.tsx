@@ -1,10 +1,22 @@
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../../configs/firebase.config";
-import { api } from "@/lib/api/client";
 import { Button } from "@/components/ui/button";
 import { FcGoogle } from "react-icons/fc";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useAuth } from "@/lib/context/auth-context";
+import { toast } from "@/hooks/use-toast";
 
 const GoogleSignIn = () => {
+  const router = useRouter();
+  const { signInWithGoogle, user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      router.push("/dashboard");
+    }
+  }, [user, router]);
+
   const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
@@ -12,16 +24,21 @@ const GoogleSignIn = () => {
 
       const idToken = await user.getIdToken();
 
-      const response = await api.auth.signInWithGoogle({ idToken });
+      await signInWithGoogle(idToken);
 
-      const data = await response.data.data;
+      toast({
+        title: "Success",
+        description: "Signed in successfully",
+      });
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("refreshToken", data.refreshToken);
-
-      window.location.href = "/dashboard";
+      router.push("/dashboard");
     } catch (error) {
       console.error("Google sign-in error:", error);
+      toast({
+        title: "Error",
+        description: "Google sign-in failed",
+        variant: "destructive",
+      });
     }
   };
 
