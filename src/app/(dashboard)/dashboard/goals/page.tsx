@@ -70,7 +70,7 @@ export default function GoalsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, []);
 
   const loadUpcomingGoals = useCallback(async () => {
     try {

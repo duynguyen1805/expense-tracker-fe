@@ -64,7 +64,7 @@ export default function SettingsPage() {
       }
     };
     fetch2FAStatus();
-  }, [twoFAStatus, toast]);
+  }, []);
 
   // Generate 2FA secret and QR
   const handleGenerate2FA = async () => {

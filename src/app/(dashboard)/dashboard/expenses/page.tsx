@@ -79,7 +79,7 @@ export default function ExpensesPage() {
       }
     };
     loadData();
-  }, [budgets, expenses, toast]);
+  }, []);
 
   const handleChangeAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/[^\d]/g, ""); // chỉ lấy số

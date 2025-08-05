@@ -73,7 +73,7 @@ export default function IncomePage() {
     };
 
     loadData();
-  }, [incomes, totalIncome, toast]);
+  }, []);
 
   const handleChangeAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/[^\d]/g, ""); // chỉ lấy số

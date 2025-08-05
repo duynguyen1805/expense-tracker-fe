@@ -46,7 +46,7 @@ export default function Notifications({
     } finally {
       setIsLoading(false);
     }
-  }, [notifications, limit, toast]);
+  }, []);
 
   const loadUnreadCount = useCallback(async () => {
     try {
@@ -57,12 +57,12 @@ export default function Notifications({
     } catch (error) {
       console.error("Error loading unread count:", error);
     }
-  }, [unreadCount]);
+  }, []);
 
   useEffect(() => {
     loadNotifications();
     loadUnreadCount();
-  }, [loadNotifications, loadUnreadCount]);
+  }, []);
 
   const handleMarkAsRead = async (notificationId: number) => {
     try {

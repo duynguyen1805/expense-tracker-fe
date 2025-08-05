@@ -30,7 +30,7 @@ export function useNotificationPreferences() {
     } finally {
       setIsLoading(false);
     }
-  }, [preferences, toast]);
+  }, []);
 
   const updatePreferences = async (
     updateData: UpdateNotificationPreferencesRequest

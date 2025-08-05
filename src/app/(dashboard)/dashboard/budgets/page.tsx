@@ -81,7 +81,7 @@ export default function BudgetsPage() {
     };
 
     loadData();
-  }, [categories, budgets, toast]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
