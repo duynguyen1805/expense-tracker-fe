@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+  // CardDescription,
+  // CardHeader,
+  // CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,18 +20,16 @@ interface NotificationsProps {
   showHeader?: boolean;
 }
 
-export default function Notifications({ limit = 20, showHeader = true }: NotificationsProps) {
+export default function Notifications({
+  limit = 20,
+  showHeader = true,
+}: NotificationsProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadNotifications();
-    loadUnreadCount();
-  }, []);
-
-  const loadNotifications = async () => {
+  const loadNotifications = useCallback(async () => {
     try {
       setIsLoading(true);
       const response = await api.notifications.getAll(limit);
@@ -48,9 +46,9 @@ export default function Notifications({ limit = 20, showHeader = true }: Notific
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [notifications, limit, toast]);
 
-  const loadUnreadCount = async () => {
+  const loadUnreadCount = useCallback(async () => {
     try {
       const response = await api.notifications.getUnreadCount();
       if (response.data.success) {
@@ -59,20 +57,25 @@ export default function Notifications({ limit = 20, showHeader = true }: Notific
     } catch (error) {
       console.error("Error loading unread count:", error);
     }
-  };
+  }, [unreadCount]);
+
+  useEffect(() => {
+    loadNotifications();
+    loadUnreadCount();
+  }, [loadNotifications, loadUnreadCount]);
 
   const handleMarkAsRead = async (notificationId: number) => {
     try {
       const response = await api.notifications.markAsRead(notificationId);
       if (response.data.success) {
-        setNotifications(prev =>
-          prev.map(notif =>
+        setNotifications((prev) =>
+          prev.map((notif) =>
             notif.notificationId === notificationId
               ? { ...notif, status: "READ" as const }
               : notif
           )
         );
-        setUnreadCount(prev => Math.max(0, prev - 1));
+        setUnreadCount((prev) => Math.max(0, prev - 1));
         toast({
           title: "Success",
           description: "Notification marked as read",
@@ -92,13 +95,15 @@ export default function Notifications({ limit = 20, showHeader = true }: Notific
     try {
       const response = await api.notifications.delete(notificationId);
       if (response.data.success) {
-        setNotifications(prev =>
-          prev.filter(notif => notif.notificationId !== notificationId)
+        setNotifications((prev) =>
+          prev.filter((notif) => notif.notificationId !== notificationId)
         );
         // update unread count if the deleted notification was unread
-        const deletedNotification = notifications.find(n => n.notificationId === notificationId);
+        const deletedNotification = notifications.find(
+          (n) => n.notificationId === notificationId
+        );
         if (deletedNotification && deletedNotification.status !== "READ") {
-          setUnreadCount(prev => Math.max(0, prev - 1));
+          setUnreadCount((prev) => Math.max(0, prev - 1));
         }
         toast({
           title: "Success",
@@ -146,12 +151,14 @@ export default function Notifications({ limit = 20, showHeader = true }: Notific
   const formatDate = (date: Date | string) => {
     const dateObj = typeof date === "string" ? new Date(date) : date;
     const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - dateObj.getTime()) / (1000 * 60 * 60));
-    
+    const diffInHours = Math.floor(
+      (now.getTime() - dateObj.getTime()) / (1000 * 60 * 60)
+    );
+
     if (diffInHours < 1) {
       return "Just now";
     } else if (diffInHours < 24) {
-      return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+      return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`;
     } else {
       return dateObj.toLocaleDateString();
     }
@@ -190,7 +197,7 @@ export default function Notifications({ limit = 20, showHeader = true }: Notific
               <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-gray-500">No notifications yet</p>
               <p className="text-sm text-muted-foreground mt-2">
-                You'll receive notifications about your financial goals here
+                You will receive notifications about your financial goals here
               </p>
             </CardContent>
           </Card>
@@ -199,8 +206,8 @@ export default function Notifications({ limit = 20, showHeader = true }: Notific
             <Card
               key={notification.notificationId}
               className={`transition-all duration-200 ${
-                notification.status === "READ" 
-                  ? "opacity-75" 
+                notification.status === "READ"
+                  ? "opacity-75"
                   : "border-primary/20 bg-primary/5"
               }`}
             >
@@ -233,7 +240,9 @@ export default function Notifications({ limit = 20, showHeader = true }: Notific
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleMarkAsRead(notification.notificationId)}
+                        onClick={() =>
+                          handleMarkAsRead(notification.notificationId)
+                        }
                         className="h-8 w-8 p-0"
                       >
                         <Check className="h-4 w-4" />
@@ -256,4 +265,4 @@ export default function Notifications({ limit = 20, showHeader = true }: Notific
       </div>
     </div>
   );
-} 
+}

@@ -36,7 +36,7 @@ export const ThemeCustomProvider = ({
   const setTheme = async (t: Theme) => {
     setThemeState(t);
     localStorage.setItem("theme", t);
-    let user = JSON.parse(localStorage.getItem("user_data") || "{}");
+    const user = JSON.parse(localStorage.getItem("user_data") || "{}");
     if (user) {
       const userUpdated = await api.user.updateProfile({ theme: t });
       if (userUpdated.data.success) {

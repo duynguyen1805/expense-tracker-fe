@@ -27,14 +27,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TrendingDown, Plus, Edit, Trash2 } from "lucide-react";
-import { Expense, Category, Budget } from "@/lib/types";
+import { Expense, Budget } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api/client";
-import { useAuth } from "@/lib/context/auth-context";
+// import { useAuth } from "@/lib/context/auth-context";
 import { formatCurrencyVND } from "@/lib/utils";
 
 export default function ExpensesPage() {
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   // const [categories, setCategories] = useState<Category[]>([]);
   const [budgets, setBudgets] = useState<Budget[]>([]);
@@ -47,7 +47,7 @@ export default function ExpensesPage() {
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [budgetId, setBudgetId] = useState("");
-  const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
+  const [_selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
   const [date, setDate] = useState("");
 
   useEffect(() => {
@@ -79,7 +79,7 @@ export default function ExpensesPage() {
       }
     };
     loadData();
-  }, []);
+  }, [budgets, expenses, toast]);
 
   const handleChangeAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/[^\d]/g, ""); // chỉ lấy số

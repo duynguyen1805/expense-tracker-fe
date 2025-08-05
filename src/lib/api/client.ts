@@ -1,6 +1,6 @@
 import axios from "axios";
 import { ApiResponse } from "@/lib/types";
-import { AuthProvider } from "@/lib/context/auth-context";
+// import { AuthProvider } from "@/lib/context/auth-context";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -94,8 +94,8 @@ export const api = {
       firstName: string;
       lastName: string;
     }) => apiClient.post<ApiResponse<any>>("/auth/register", data),
-    // login: (data: { email: string; password: string }) =>
-    //   apiClient.post<ApiResponse<any>>("/auth/login-account", data),
+    login: (data: { email: string; password: string }) =>
+      apiClient.post<ApiResponse<any>>("/auth/login-account", data),
     verifyOtp: (data: { email: string; otp: string }) =>
       apiClient.post<ApiResponse<any>>("/auth/verify-otp", data),
     resendOtp: (data: { email: string }) =>

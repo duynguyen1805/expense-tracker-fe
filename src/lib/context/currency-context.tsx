@@ -36,7 +36,7 @@ export const CurrencyCustomProvider = ({
     setCurrencyState(c);
     localStorage.setItem("currency", c);
 
-    let user = JSON.parse(localStorage.getItem("user_data") || "{}");
+    const user = JSON.parse(localStorage.getItem("user_data") || "{}");
     if (user) {
       const userUpdated = await api.user.updateProfile({ currency: c });
       console.log("userUpdated", userUpdated);

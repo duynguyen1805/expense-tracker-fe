@@ -10,13 +10,14 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Bell, Mail, Smartphone, Settings } from "lucide-react";
+import { Bell, Settings } from "lucide-react";
 import { NotificationPreferences } from "@/lib/types";
 import { api } from "@/lib/api/client";
 import Link from "next/link";
 
 export default function NotificationSummary() {
-  const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
+  const [preferences, setPreferences] =
+    useState<NotificationPreferences | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -102,7 +103,9 @@ export default function NotificationSummary() {
                   </Badge>
                 ))
               ) : (
-                <span className="text-sm text-muted-foreground">No channels enabled</span>
+                <span className="text-sm text-muted-foreground">
+                  No channels enabled
+                </span>
               )}
             </div>
           </div>
@@ -117,7 +120,9 @@ export default function NotificationSummary() {
                   </Badge>
                 ))
               ) : (
-                <span className="text-sm text-muted-foreground">No notifications enabled</span>
+                <span className="text-sm text-muted-foreground">
+                  No notifications enabled
+                </span>
               )}
               {enabledTypes.length > 3 && (
                 <Badge variant="outline" className="text-xs">
@@ -142,4 +147,4 @@ export default function NotificationSummary() {
       </CardContent>
     </Card>
   );
-} 
+}

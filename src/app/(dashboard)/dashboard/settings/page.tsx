@@ -12,10 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/lib/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
-import { User, Bell, Shield, Palette, Database } from "lucide-react";
+import { User, Shield, Palette, Database } from "lucide-react";
 import { useTheme } from "@/lib/context/theme-context";
 import { useCurrency } from "@/lib/context/currency-context";
 import { api } from "@/lib/api/client";
@@ -24,18 +23,18 @@ import NotificationPreferencesComponent from "@/components/dashboard/notificatio
 export default function SettingsPage() {
   const { user, logout } = useAuth();
   const { toast } = useToast();
-  const [notifications, setNotifications] = useState({
-    email: true,
-    push: false,
-    budgetAlerts: true,
-    goalReminders: true,
-  });
+  // const [notifications, setNotifications] = useState({
+  //   email: true,
+  //   push: false,
+  //   budgetAlerts: true,
+  //   goalReminders: true,
+  // });
   const { theme, setTheme } = useTheme();
   const { currency, setCurrency } = useCurrency();
 
   // 2FA states
   const [secret, setSecret] = useState("");
-  const [otpAuthUrl, setOTPAuthUrl] = useState("");
+  const [_otpAuthUrl, setOTPAuthUrl] = useState("");
   const [qr, setQr] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [emailOtp, setEmailOtp] = useState("");
@@ -56,10 +55,16 @@ export default function SettingsPage() {
         if (res.data.success) {
           setTwoFAStatus(res.data.data);
         }
-      } catch (e) {}
+      } catch (e: any) {
+        toast({
+          title: "Error",
+          description: e.message,
+          variant: "destructive",
+        });
+      }
     };
     fetch2FAStatus();
-  }, []);
+  }, [twoFAStatus, toast]);
 
   // Generate 2FA secret and QR
   const handleGenerate2FA = async () => {
@@ -89,10 +94,10 @@ export default function SettingsPage() {
         const statusRes = await api.auth.get2FAStatus();
         if (statusRes.data.success) setTwoFAStatus(statusRes.data.data);
       }
-    } catch (e) {
+    } catch (e: any) {
       toast({
         title: "Error",
-        description: "Invalid OTP",
+        description: "Invalid OTP: " + e.message,
         variant: "destructive",
       });
     } finally {
@@ -114,10 +119,10 @@ export default function SettingsPage() {
         const statusRes = await api.auth.get2FAStatus();
         if (statusRes.data.success) setTwoFAStatus(statusRes.data.data);
       }
-    } catch (e) {
+    } catch (e: any) {
       toast({
         title: "Error",
-        description: "Failed to disable 2FA",
+        description: "Failed to disable 2FA: " + e.message,
         variant: "destructive",
       });
     } finally {
@@ -130,10 +135,10 @@ export default function SettingsPage() {
     try {
       await api.auth.sendDisable2FAOtp();
       toast({ title: "OTP sent", description: "Check your email for the OTP" });
-    } catch (e) {
+    } catch (e: any) {
       toast({
         title: "Error",
-        description: "Failed to send OTP",
+        description: "Failed to send OTP to email: " + e.message,
         variant: "destructive",
       });
     }
@@ -161,7 +166,7 @@ export default function SettingsPage() {
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
-          <TabsTrigger value="data">Data & Privacy</TabsTrigger>
+          <TabsTrigger value="data">Data & Privacy (Comming soon)</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="space-y-6">
@@ -384,7 +389,9 @@ export default function SettingsPage() {
                   <select
                     id="theme"
                     value={theme}
-                    onChange={(e) => setTheme(e.target.value as any)}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                      setTheme(e.target.value as any)
+                    }
                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors text-foreground file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                   >
                     <option value="light">Light</option>

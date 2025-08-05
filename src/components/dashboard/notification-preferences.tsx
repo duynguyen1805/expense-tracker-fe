@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -12,19 +12,19 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Bell, 
-  Mail, 
-  Smartphone, 
-  Target, 
-  TrendingUp, 
-  TrendingDown, 
-  FileText, 
+import {
+  Bell,
+  Mail,
+  Smartphone,
+  Target,
+  TrendingUp,
+  TrendingDown,
+  FileText,
   Calendar,
   Trophy,
   Settings,
   RefreshCw,
-  Save
+  Save,
 } from "lucide-react";
 import { NotificationPreferences } from "@/lib/types";
 import { useNotificationPreferences } from "@/hooks/use-notification-preferences";
@@ -140,7 +140,9 @@ export default function NotificationPreferencesComponent() {
       <Card>
         <CardContent className="text-center py-8">
           <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-gray-500">Failed to load notification preferences</p>
+          <p className="text-gray-500">
+            Failed to load notification preferences
+          </p>
         </CardContent>
       </Card>
     );
@@ -169,18 +171,11 @@ export default function NotificationPreferencesComponent() {
           </p>
         </div>
         <div className="flex space-x-2">
-          <Button
-            variant="outline"
-            onClick={handleReset}
-            disabled={isSaving}
-          >
+          <Button variant="outline" onClick={handleReset} disabled={isSaving}>
             <RefreshCw className="mr-2 h-4 w-4" />
             Reset to Default
           </Button>
-          <Button
-            onClick={handleSave}
-            disabled={!hasChanges || isSaving}
-          >
+          <Button onClick={handleSave} disabled={!hasChanges || isSaving}>
             <Save className="mr-2 h-4 w-4" />
             {isSaving ? "Saving..." : "Save Changes"}
           </Button>
@@ -214,8 +209,12 @@ export default function NotificationPreferencesComponent() {
                 </div>
                 <Switch
                   id={key}
-                  checked={preferences[key as keyof NotificationPreferences] as boolean}
-                  onCheckedChange={() => handleToggle(key as keyof NotificationPreferences)}
+                  checked={
+                    preferences[key as keyof NotificationPreferences] as boolean
+                  }
+                  onCheckedChange={() =>
+                    handleToggle(key as keyof NotificationPreferences)
+                  }
                 />
               </div>
             </CardContent>
@@ -265,4 +264,4 @@ export default function NotificationPreferencesComponent() {
       </Card>
     </div>
   );
-} 
+}

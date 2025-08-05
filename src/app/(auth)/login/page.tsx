@@ -53,21 +53,22 @@ export default function LoginPage() {
         description: "Logged in successfully!",
       });
       router.push("/dashboard");
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as { code: string; message: string };
       // Nếu lỗi là REQUIRED_TWO_FA, hiển thị input 2FA
       if (
-        error?.code === "REQUIRED_TWO_FA" ||
-        error?.message === "REQUIRED_TWO_FA"
+        err?.code === "REQUIRED_TWO_FA" ||
+        err?.message === "REQUIRED_TWO_FA"
       ) {
         setShow2FA(true);
         setLoginError("Please enter your 2FA code.");
       } else {
         toast({
           title: "Error",
-          description: error instanceof Error ? error.message : "Login failed",
+          description: err instanceof Error ? err.message : "Login failed",
           variant: "destructive",
         });
-        setLoginError(error?.message || "Login failed");
+        setLoginError(err?.message || "Login failed");
       }
     } finally {
       setIsLoading(false);

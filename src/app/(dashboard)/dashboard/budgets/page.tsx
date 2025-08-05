@@ -27,9 +27,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Target, Plus, Edit, Trash2, AlertCircle } from "lucide-react";
-import { ApiResponse, Budget, Category } from "@/lib/types";
+import { Budget, Category } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
-import { defaultListCategories } from "@/lib/constants/categoriesList";
 
 import { api } from "@/lib/api/client";
 import { useAuth } from "@/lib/context/auth-context";
@@ -48,7 +47,7 @@ export default function BudgetsPage() {
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
   const [categoryId, setCategoryId] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+  const [_selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
   );
   const [period, setPeriod] = useState<"MONTHLY" | "YEARLY">("MONTHLY");
@@ -69,7 +68,7 @@ export default function BudgetsPage() {
         if (budgetsReponse.data.success && budgetsReponse.data.data) {
           setBudgets(budgetsReponse.data.data);
         }
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("Error loading data:", error);
         toast({
           title: "Error",
@@ -82,7 +81,7 @@ export default function BudgetsPage() {
     };
 
     loadData();
-  }, []);
+  }, [categories, budgets, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

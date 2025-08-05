@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -20,8 +20,20 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import { Target, Plus, Edit, Trash2, Calendar, AlertTriangle, CheckCircle } from "lucide-react";
-import { FinancialGoal, CreateFinancialGoalRequest, UpdateFinancialGoalRequest } from "@/lib/types";
+import {
+  Target,
+  Plus,
+  Edit,
+  Trash2,
+  Calendar,
+  AlertTriangle,
+  CheckCircle,
+} from "lucide-react";
+import {
+  FinancialGoal,
+  CreateFinancialGoalRequest,
+  UpdateFinancialGoalRequest,
+} from "@/lib/types";
 import { api } from "@/lib/api/client";
 import { useToast } from "@/hooks/use-toast";
 import Notifications from "@/components/dashboard/notifications";
@@ -41,12 +53,7 @@ export default function GoalsPage() {
   const [deadline, setDeadline] = useState("");
   const [autoDeduct, setAutoDeduct] = useState(false);
 
-  useEffect(() => {
-    loadGoals();
-    loadUpcomingGoals();
-  }, []);
-
-  const loadGoals = async () => {
+  const loadGoals = useCallback(async () => {
     try {
       setIsLoading(true);
       const response = await api.goals.getAll();
@@ -63,9 +70,9 @@ export default function GoalsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
-  const loadUpcomingGoals = async () => {
+  const loadUpcomingGoals = useCallback(async () => {
     try {
       const response = await api.goals.getUpcoming(30);
       if (response.data.success) {
@@ -74,7 +81,12 @@ export default function GoalsPage() {
     } catch (error) {
       console.error("Error loading upcoming goals:", error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadGoals();
+    loadUpcomingGoals();
+  }, [goals, upcomingGoals, loadGoals, loadUpcomingGoals]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,7 +162,9 @@ export default function GoalsPage() {
       const response = await api.goals.delete(goalId);
       if (response.data.success) {
         setGoals(goals.filter((goal) => goal.goalId !== goalId));
-        setUpcomingGoals(upcomingGoals.filter((goal) => goal.goalId !== goalId));
+        setUpcomingGoals(
+          upcomingGoals.filter((goal) => goal.goalId !== goalId)
+        );
         toast({
           title: "Success",
           description: "Goal deleted successfully!",
@@ -354,7 +368,9 @@ export default function GoalsPage() {
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <div>
-                        <CardTitle className="text-lg">{goal.goalName}</CardTitle>
+                        <CardTitle className="text-lg">
+                          {goal.goalName}
+                        </CardTitle>
                         <CardDescription>
                           Target: ${goal.targetAmount.toLocaleString()}
                         </CardDescription>
@@ -366,13 +382,19 @@ export default function GoalsPage() {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between text-sm">
                         <span>Days remaining:</span>
-                        <span className={`font-semibold ${
-                          urgency === "overdue" ? "text-red-600" :
-                          urgency === "critical" ? "text-red-500" :
-                          urgency === "urgent" ? "text-orange-500" :
-                          "text-yellow-500"
-                        }`}>
-                          {Math.abs(daysRemaining)} {daysRemaining < 0 ? "overdue" : "days"}
+                        <span
+                          className={`font-semibold ${
+                            urgency === "overdue"
+                              ? "text-red-600"
+                              : urgency === "critical"
+                                ? "text-red-500"
+                                : urgency === "urgent"
+                                  ? "text-orange-500"
+                                  : "text-yellow-500"
+                          }`}
+                        >
+                          {Math.abs(daysRemaining)}{" "}
+                          {daysRemaining < 0 ? "overdue" : "days"}
                         </span>
                       </div>
                       <div className="flex items-center text-xs text-muted-foreground">
@@ -421,13 +443,19 @@ export default function GoalsPage() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
                       <span>Days remaining:</span>
-                      <span className={`font-semibold ${
-                        urgency === "overdue" ? "text-red-600" :
-                        urgency === "critical" ? "text-red-500" :
-                        urgency === "urgent" ? "text-orange-500" :
-                        "text-yellow-500"
-                      }`}>
-                        {Math.abs(daysRemaining)} {daysRemaining < 0 ? "overdue" : "days"}
+                      <span
+                        className={`font-semibold ${
+                          urgency === "overdue"
+                            ? "text-red-600"
+                            : urgency === "critical"
+                              ? "text-red-500"
+                              : urgency === "urgent"
+                                ? "text-orange-500"
+                                : "text-yellow-500"
+                        }`}
+                      >
+                        {Math.abs(daysRemaining)}{" "}
+                        {daysRemaining < 0 ? "overdue" : "days"}
                       </span>
                     </div>
                     <div className="flex items-center text-xs text-muted-foreground">

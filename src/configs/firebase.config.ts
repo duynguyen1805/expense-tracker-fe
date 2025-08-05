@@ -7,7 +7,7 @@ import 'firebase/compat/auth';
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 import { initializeApp } from '@firebase/app';
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { getAuth as _getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
 import { getFirestore } from 'firebase/firestore';
 

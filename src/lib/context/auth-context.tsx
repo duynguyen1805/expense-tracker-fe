@@ -35,8 +35,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [refreshTokenValue, setRefreshTokenValue] = useState<string | null>(
+  const [_accessToken, setAccessToken] = useState<string | null>(null);
+  const [_refreshTokenValue, setRefreshTokenValue] = useState<string | null>(
     null
   );
 
@@ -136,7 +136,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
       setAccessToken(response.data.data.token);
       return true;
-    } catch (error) {
+    } catch (error: any) {
+      console.log("refreshToken error", error);
       logout();
       return false;
     }
@@ -217,7 +218,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setRefreshTokenValue(null);
       setUser(null);
       return true;
-    } catch (error) {
+    } catch (error: any) {
+      console.log("logout error", error);
       return false;
     }
   };

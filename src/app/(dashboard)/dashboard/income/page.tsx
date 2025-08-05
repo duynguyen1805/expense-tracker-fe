@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TrendingUp, Plus, Edit, Trash2 } from "lucide-react";
-import { Income, Category } from "@/lib/types";
+import { Income } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api/client";
 import { listIncomeSourceName } from "@/lib/constants/incomeSourceList";
@@ -73,7 +73,7 @@ export default function IncomePage() {
     };
 
     loadData();
-  }, []);
+  }, [incomes, totalIncome, toast]);
 
   const handleChangeAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/[^\d]/g, ""); // chỉ lấy số

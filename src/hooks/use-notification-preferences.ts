@@ -1,15 +1,19 @@
-import { useState, useEffect } from "react";
-import { NotificationPreferences, UpdateNotificationPreferencesRequest } from "@/lib/types";
+import { useState, useEffect, useCallback } from "react";
+import {
+  NotificationPreferences,
+  UpdateNotificationPreferencesRequest,
+} from "@/lib/types";
 import { api } from "@/lib/api/client";
 import { useToast } from "@/hooks/use-toast";
 
 export function useNotificationPreferences() {
-  const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
+  const [preferences, setPreferences] =
+    useState<NotificationPreferences | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
-  const loadPreferences = async () => {
+  const loadPreferences = useCallback(async () => {
     try {
       setIsLoading(true);
       const response = await api.user.getNotificationPreferences();
@@ -26,9 +30,11 @@ export function useNotificationPreferences() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [preferences, toast]);
 
-  const updatePreferences = async (updateData: UpdateNotificationPreferencesRequest) => {
+  const updatePreferences = async (
+    updateData: UpdateNotificationPreferencesRequest
+  ) => {
     try {
       setIsSaving(true);
       const response = await api.user.updateNotificationPreferences(updateData);
@@ -80,19 +86,19 @@ export function useNotificationPreferences() {
 
   const togglePreference = (key: keyof NotificationPreferences) => {
     if (!preferences) return;
-    
-    setPreferences(prev => {
+
+    setPreferences((prev) => {
       if (!prev) return prev;
       return {
         ...prev,
-        [key]: !prev[key]
+        [key]: !prev[key],
       };
     });
   };
 
   useEffect(() => {
     loadPreferences();
-  }, []);
+  }, [loadPreferences]);
 
   return {
     preferences,
@@ -103,4 +109,4 @@ export function useNotificationPreferences() {
     resetPreferences,
     togglePreference,
   };
-} 
+}

@@ -1,18 +1,24 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { api } from '@/lib/api/client';
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { api } from "@/lib/api/client";
 
 export default function ExampleApiPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [apiResponse, setApiResponse] = useState<unknown>(null);
+  const [apiResponse, setApiResponse] = useState<any>(null);
   const { toast } = useToast();
 
   // Ví dụ 1: Gọi API login
@@ -20,20 +26,20 @@ export default function ExampleApiPage() {
     try {
       setIsLoading(true);
       const response = await api.auth.login({ email, password });
-      
-      console.log('Login Response:', response);
+
+      console.log("Login Response:", response);
       setApiResponse(response.data);
-      
+
       toast({
-        title: 'Success',
-        description: 'API call successful!',
+        title: "Success",
+        description: "API call successful!",
       });
     } catch (error) {
-      console.error('Login Error:', error);
+      console.error("Login Error:", error);
       toast({
-        title: 'Error',
-        description: 'API call failed',
-        variant: 'destructive',
+        title: "Error",
+        description: "API call failed",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -45,20 +51,20 @@ export default function ExampleApiPage() {
     try {
       setIsLoading(true);
       const response = await api.categories.getAll();
-      
-      console.log('Categories Response:', response);
+
+      console.log("Categories Response:", response);
       setApiResponse(response.data);
-      
+
       toast({
-        title: 'Success',
-        description: 'Categories loaded!',
+        title: "Success",
+        description: "Categories loaded!",
       });
     } catch (error) {
-      console.error('Categories Error:', error);
+      console.error("Categories Error:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to load categories',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to load categories",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -70,20 +76,20 @@ export default function ExampleApiPage() {
     try {
       setIsLoading(true);
       const response = await api.income.getAll();
-      
-      console.log('Incomes Response:', response);
+
+      console.log("Incomes Response:", response);
       setApiResponse(response.data);
-      
+
       toast({
-        title: 'Success',
-        description: 'Incomes loaded!',
+        title: "Success",
+        description: "Incomes loaded!",
       });
     } catch (error) {
-      console.error('Incomes Error:', error);
+      console.error("Incomes Error:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to load incomes',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to load incomes",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -95,20 +101,20 @@ export default function ExampleApiPage() {
     try {
       setIsLoading(true);
       const response = await api.dashboard.getStats();
-      
-      console.log('Stats Response:', response);
+
+      console.log("Stats Response:", response);
       setApiResponse(response.data);
-      
+
       toast({
-        title: 'Success',
-        description: 'Dashboard stats loaded!',
+        title: "Success",
+        description: "Dashboard stats loaded!",
       });
     } catch (error) {
-      console.error('Stats Error:', error);
+      console.error("Stats Error:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to load stats',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to load stats",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -154,7 +160,7 @@ export default function ExampleApiPage() {
             </div>
           </div>
           <Button onClick={handleLogin} disabled={isLoading}>
-            {isLoading ? 'Calling...' : 'Call Login API'}
+            {isLoading ? "Calling..." : "Call Login API"}
           </Button>
         </CardContent>
       </Card>
@@ -167,8 +173,12 @@ export default function ExampleApiPage() {
             <CardDescription>Get all categories</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={handleGetCategories} disabled={isLoading} className="w-full">
-              {isLoading ? 'Loading...' : 'Get Categories'}
+            <Button
+              onClick={handleGetCategories}
+              disabled={isLoading}
+              className="w-full"
+            >
+              {isLoading ? "Loading..." : "Get Categories"}
             </Button>
           </CardContent>
         </Card>
@@ -179,8 +189,12 @@ export default function ExampleApiPage() {
             <CardDescription>Get all incomes</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={handleGetIncomes} disabled={isLoading} className="w-full">
-              {isLoading ? 'Loading...' : 'Get Incomes'}
+            <Button
+              onClick={handleGetIncomes}
+              disabled={isLoading}
+              className="w-full"
+            >
+              {isLoading ? "Loading..." : "Get Incomes"}
             </Button>
           </CardContent>
         </Card>
@@ -191,8 +205,12 @@ export default function ExampleApiPage() {
             <CardDescription>Get dashboard stats</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={handleGetStats} disabled={isLoading} className="w-full">
-              {isLoading ? 'Loading...' : 'Get Stats'}
+            <Button
+              onClick={handleGetStats}
+              disabled={isLoading}
+              className="w-full"
+            >
+              {isLoading ? "Loading..." : "Get Stats"}
             </Button>
           </CardContent>
         </Card>
@@ -223,14 +241,14 @@ export default function ExampleApiPage() {
           <div>
             <h4 className="font-semibold mb-2">1. Import API client:</h4>
             <pre className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-sm">
-{`import { api } from '@/lib/api/client';`}
+              {`import { api } from '@/lib/api/client';`}
             </pre>
           </div>
 
           <div>
             <h4 className="font-semibold mb-2">2. Gọi API với async/await:</h4>
             <pre className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-sm">
-{`const response = await api.auth.login({ email, password });
+              {`const response = await api.auth.login({ email, password });
 console.log(response.data);`}
             </pre>
           </div>
@@ -238,7 +256,7 @@ console.log(response.data);`}
           <div>
             <h4 className="font-semibold mb-2">3. Error handling:</h4>
             <pre className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-sm">
-{`try {
+              {`try {
   const response = await api.categories.getAll();
   // Handle success
 } catch (error) {
@@ -250,7 +268,7 @@ console.log(response.data);`}
           <div>
             <h4 className="font-semibold mb-2">4. Available API methods:</h4>
             <pre className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-sm">
-{`// Auth
+              {`// Auth
 api.auth.login(data)
 api.auth.register(data)
 api.auth.verifyOtp(data)
@@ -293,4 +311,4 @@ api.dashboard.getStats()`}
       </Card>
     </div>
   );
-} 
+}

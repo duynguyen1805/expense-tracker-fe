@@ -153,7 +153,7 @@ export default function DashboardPage() {
                   No data available
                 </p>
               )}
-              {stats.topCategories.map((item, index) => (
+              {stats.topCategories.map((item) => (
                 <div
                   key={item.category.categoryId}
                   className="flex items-center justify-between"
