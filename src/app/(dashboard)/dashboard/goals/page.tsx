@@ -86,7 +86,7 @@ export default function GoalsPage() {
   useEffect(() => {
     loadGoals();
     loadUpcomingGoals();
-  }, [goals, upcomingGoals, loadGoals, loadUpcomingGoals]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
